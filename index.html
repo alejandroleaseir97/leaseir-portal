@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#074C5B">
+<title>Leaseir · Cuadro de mando</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 584 506'%3E%3Cpath d='M266.69 154.59L583.51 450.02V446.46L339.81 30.05C326.91 10.09 299.53 0 276.04 0H276C233.16 0 214.45 31.65 214.45 31.65L141.33 160.22C200.8 83.08 266.68 154.6 266.68 154.6L266.69 154.59Z' fill='%23074C5B'/%3E%3Cpath d='M285.25 416.82C285.25 416.82 358.22 373.73 397 392.17L329.97 338.28C305.9 318.92 272.59 314.34 244.94 328.11C239.63 330.75 199.86 354.21 147.87 377.13C147.87 377.13 89.25 408.97 64.9 358.77C64.9 358.77 52.57 319.98 66.69 287.85C66.62 287.85 7.76 398.48 7.76 398.48C-27.97 475.22 66.53 538.35 146.86 487.78L285.24 416.81L285.25 416.82Z' fill='%23074C5B'/%3E%3C/svg%3E">
+<style>
+  /* ---- Paleta corporativa Leaseir (tomada de leaseir.com) ----
+     Teal profundo  #074C5B      Azul claro  #8DC5D1
+     Teal oscuro    #05272D      Ámbar       #FFCB77
+     Gris fondo     #F2F2F2      Tipografía  Futura PT -> Jost          */
+  :root{
+    --teal:#074C5B;
+    --teal-dark:#05272D;
+    --sky:#8DC5D1;
+    --amber:#FFCB77;
+
+    --bg:#f2f2f2;
+    --bg-grad:radial-gradient(1100px 520px at 8% -12%, rgba(141,197,209,.42) 0%, transparent 62%),
+              radial-gradient(900px 460px at 100% 4%, rgba(7,76,91,.10) 0%, transparent 58%);
+    --surface:#ffffff;
+    --surface-2:#f7f9fa;
+    --border:rgba(7,76,91,.12);
+    --border-strong:rgba(7,76,91,.26);
+    --text:#0d2f38;
+    --muted:#5c7c85;
+    --faint:#8aa3ab;
+    --accent:var(--teal);
+    --accent-soft:rgba(141,197,209,.28);
+    --ok:#0f7a63;
+    --err:#b3363f;
+    --err-soft:rgba(179,54,63,.10);
+    --shadow:0 1px 2px rgba(5,39,45,.05), 0 14px 30px -16px rgba(5,39,45,.28);
+    --shadow-lg:0 30px 70px -24px rgba(5,39,45,.45);
+    --radius:20px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#05272d;
+      --bg-grad:radial-gradient(1100px 520px at 8% -12%, rgba(141,197,209,.16) 0%, transparent 62%),
+                radial-gradient(900px 460px at 100% 4%, rgba(7,76,91,.55) 0%, transparent 58%);
+      --surface:#08333c;
+      --surface-2:#0a3b45;
+      --border:rgba(141,197,209,.16);
+      --border-strong:rgba(141,197,209,.34);
+      --text:#e9f4f6;
+      --muted:#a7c6ce;
+      --faint:#7ea3ad;
+      --accent:var(--sky);
+      --accent-soft:rgba(141,197,209,.16);
+      --ok:#5fd0ac;
+      --err:#ff9aa2;
+      --err-soft:rgba(255,154,162,.12);
+      --shadow:0 1px 2px rgba(0,0,0,.35), 0 14px 30px -16px rgba(0,0,0,.65);
+      --shadow-lg:0 30px 70px -24px rgba(0,0,0,.8);
+    }
+  }
+
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:"Jost","Futura PT",Futura,"Century Gothic",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    background:var(--bg-grad), var(--bg);
+    background-attachment:fixed;
+    color:var(--text);
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+    display:flex;flex-direction:column;
+  }
+  .wrap{width:100%;max-width:840px;margin:0 auto;padding:52px 24px 36px;flex:1;
+        display:flex;flex-direction:column;justify-content:center}
+
+  /* ---------- Cabecera ---------- */
+  header{margin-bottom:34px}
+  .brand{display:flex;align-items:center;gap:11px;margin-bottom:26px}
+  .mark{width:34px;height:auto;flex:none;color:var(--teal)}
+  @media (prefers-color-scheme: dark){ .mark{color:var(--sky)} }
+  .mark svg{width:100%;height:auto;display:block}
+  .wordmark{font-size:21px;font-weight:500;letter-spacing:.5px;color:var(--text)}
+  .divider{width:1px;height:20px;background:var(--border-strong);margin:0 3px}
+  .brand-sub{font-size:13px;color:var(--faint);letter-spacing:.3px}
+  h1{font-size:clamp(30px,5vw,42px);line-height:1.1;letter-spacing:-.5px;margin:0 0 10px;
+     font-weight:500;color:var(--accent)}
+  .lede{margin:0;color:var(--muted);font-size:15.5px;max-width:54ch;line-height:1.55;font-weight:300}
+
+  /* ---------- Rejilla ---------- */
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px}
+
+  .card{
+    position:relative;text-align:left;font:inherit;color:inherit;cursor:pointer;
+    background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+    padding:24px 24px 20px;box-shadow:var(--shadow);
+    display:flex;flex-direction:column;gap:12px;
+    transition:transform .2s cubic-bezier(.2,.7,.3,1), box-shadow .2s ease, border-color .2s ease;
+  }
+  .card::after{
+    content:"";position:absolute;inset:0;border-radius:var(--radius);pointer-events:none;
+    background:linear-gradient(135deg, rgba(141,197,209,.20), transparent 46%);
+    opacity:0;transition:opacity .2s ease;
+  }
+  .card:hover,.card:focus-visible{transform:translateY(-4px);box-shadow:var(--shadow-lg);border-color:var(--border-strong);outline:none}
+  .card:hover::after{opacity:1}
+  .card:focus-visible{box-shadow:var(--shadow-lg),0 0 0 3px var(--accent-soft)}
+  .card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+  .icon{
+    width:46px;height:46px;border-radius:14px;flex:none;display:grid;place-items:center;
+    background:var(--accent-soft);color:var(--accent);
+  }
+  .icon svg{width:22px;height:22px}
+  .lock{display:flex;align-items:center;gap:5px;font-size:11.5px;color:var(--faint);letter-spacing:.2px;
+        border:1px solid var(--border);border-radius:999px;padding:4px 10px;white-space:nowrap;background:var(--surface-2)}
+  .lock svg{width:11px;height:11px}
+  .card h2{margin:0;font-size:19px;letter-spacing:-.1px;font-weight:500;color:var(--text)}
+  .card p{margin:0;color:var(--muted);font-size:14px;line-height:1.5;font-weight:300}
+  .meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:2px}
+  .tag{font-size:11.5px;color:var(--muted);background:var(--surface-2);border:1px solid var(--border);
+       border-radius:999px;padding:3px 10px;font-weight:400}
+  .cta{margin-top:auto;padding-top:14px;border-top:1px solid var(--border);
+       display:flex;align-items:center;gap:7px;font-size:14px;font-weight:500;color:var(--accent)}
+  .cta svg{width:15px;height:15px;transition:transform .2s ease}
+  .card:hover .cta svg{transform:translateX(4px)}
+
+  /* ---------- Pie ---------- */
+  footer{border-top:1px solid var(--border)}
+  .foot{max-width:840px;margin:0 auto;padding:18px 24px 34px;display:flex;flex-wrap:wrap;
+        gap:10px 18px;align-items:center;justify-content:space-between;font-size:12.5px;color:var(--faint);font-weight:300}
+  .foot button{background:none;border:none;font:inherit;color:var(--faint);cursor:pointer;padding:0;
+               text-decoration:underline;text-underline-offset:3px}
+  .foot button:hover{color:var(--muted)}
+
+  /* ---------- Modal ---------- */
+  .overlay{
+    position:fixed;inset:0;background:rgba(5,39,45,.62);backdrop-filter:blur(5px);
+    display:none;align-items:center;justify-content:center;padding:20px;z-index:50;
+  }
+  .overlay.open{display:flex;animation:fade .16s ease}
+  @keyframes fade{from{opacity:0}to{opacity:1}}
+  .modal{
+    width:100%;max-width:410px;background:var(--surface);border:1px solid var(--border);
+    border-radius:22px;box-shadow:var(--shadow-lg);padding:28px;animation:pop .2s cubic-bezier(.2,.7,.3,1);
+  }
+  @keyframes pop{from{opacity:0;transform:translateY(10px) scale(.985)}to{opacity:1;transform:none}}
+  .modal .icon{margin-bottom:16px}
+  .modal h3{margin:0 0 5px;font-size:20px;font-weight:500;color:var(--text)}
+  .modal .sub{margin:0 0 20px;color:var(--muted);font-size:14px;line-height:1.5;font-weight:300}
+  .field{position:relative}
+  .field input{
+    width:100%;padding:13px 46px 13px 15px;font:inherit;font-size:15.5px;font-weight:400;
+    background:var(--surface-2);color:var(--text);
+    border:1px solid var(--border-strong);border-radius:12px;outline:none;
+    transition:border-color .15s ease, box-shadow .15s ease;
+  }
+  .field input::placeholder{color:var(--faint);font-weight:300}
+  .field input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+  .field input.bad{border-color:var(--err);box-shadow:0 0 0 3px var(--err-soft)}
+  .eye{position:absolute;right:7px;top:50%;transform:translateY(-50%);background:none;border:none;
+       cursor:pointer;color:var(--faint);padding:8px;display:grid;place-items:center;border-radius:8px}
+  .eye:hover{color:var(--muted)}
+  .eye svg{width:17px;height:17px}
+  .msg{min-height:18px;margin:9px 3px 0;font-size:12.5px;color:var(--err)}
+  .remember{display:flex;align-items:center;gap:8px;margin:13px 3px 0;font-size:12.5px;color:var(--muted);
+            cursor:pointer;user-select:none;font-weight:300}
+  .remember input{accent-color:var(--teal);width:14px;height:14px;cursor:pointer}
+  .actions{display:flex;gap:10px;margin-top:22px}
+  .btn{flex:1;padding:12px 16px;font:inherit;font-size:14.5px;font-weight:500;border-radius:999px;cursor:pointer;
+       border:1px solid transparent;transition:filter .15s ease, background .15s ease, color .15s ease;letter-spacing:.2px}
+  .btn-primary{background:var(--teal);color:#fff}
+  .btn-primary:hover{filter:brightness(1.22)}
+  .btn-primary:disabled{opacity:.5;cursor:not-allowed;filter:none}
+  .btn-ghost{background:transparent;color:var(--muted);border-color:var(--border-strong)}
+  .btn-ghost:hover{color:var(--text);background:var(--surface-2)}
+  @media (prefers-color-scheme: dark){
+    .btn-primary{background:var(--sky);color:#05272d}
+    .btn-primary:hover{filter:brightness(1.1)}
+  }
+  .shake{animation:shake .32s}
+  @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-7px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(3px)}}
+
+  .tool textarea{width:100%;min-height:64px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px;
+    background:var(--surface-2);color:var(--text);border:1px solid var(--border-strong);border-radius:12px;padding:11px;resize:vertical}
+  .tool code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;
+             background:var(--surface-2);padding:1px 5px;border-radius:5px}
+  .tool p.hint{font-size:12px;color:var(--faint);line-height:1.55;margin:13px 0 0;font-weight:300}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <div class="mark" aria-hidden="true">
+        <svg viewBox="0 0 584 506" xmlns="http://www.w3.org/2000/svg">
+          <path fill="currentColor" d="M266.69 154.59L583.51 450.02V446.46L339.81 30.05C326.91 10.09 299.53 0 276.04 0H276C233.16 0 214.45 31.65 214.45 31.65L141.33 160.22C200.8 83.08 266.68 154.6 266.68 154.6L266.69 154.59Z"/>
+          <path fill="currentColor" d="M285.25 416.82C285.25 416.82 358.22 373.73 397 392.17L329.97 338.28C305.9 318.92 272.59 314.34 244.94 328.11C239.63 330.75 199.86 354.21 147.87 377.13C147.87 377.13 89.25 408.97 64.9 358.77C64.9 358.77 52.57 319.98 66.69 287.85C66.62 287.85 7.76 398.48 7.76 398.48C-27.97 475.22 66.53 538.35 146.86 487.78L285.24 416.81L285.25 416.82Z"/>
+        </svg>
+      </div>
+      <div class="wordmark" id="brandName">Leaseir</div>
+      <div class="divider"></div>
+      <div class="brand-sub" id="brandSub">Control de gestión</div>
+    </div>
+    <h1 id="pageTitle">Cuadro de mando</h1>
+    <p class="lede" id="pageLede">Acceso a los paneles de control. Selecciona un panel e introduce su contraseña.</p>
+  </header>
+
+  <main class="grid" id="grid"></main>
+</div>
+
+<footer>
+  <div class="foot">
+    <span id="footNote">Uso interno · Leaseir Technologies S.L.U.</span>
+    <button type="button" id="toolBtn">Generar hash de contraseña</button>
+  </div>
+</footer>
+
+<!-- Modal de acceso -->
+<div class="overlay" id="overlay">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle">
+    <div class="icon" id="mIcon"></div>
+    <h3 id="mTitle">Panel</h3>
+    <p class="sub" id="mSub">Introduce la contraseña para abrir este panel.</p>
+    <form id="mForm" autocomplete="off">
+      <div class="field">
+        <input type="password" id="mPass" placeholder="Contraseña" autocomplete="current-password" aria-label="Contraseña">
+        <button type="button" class="eye" id="mEye" aria-label="Mostrar contraseña">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+      </div>
+      <div class="msg" id="mMsg"></div>
+      <label class="remember"><input type="checkbox" id="mRemember" checked> Recordar durante esta sesión</label>
+      <div class="actions">
+        <button type="button" class="btn btn-ghost" id="mCancel">Cancelar</button>
+        <button type="submit" class="btn btn-primary" id="mOk">Abrir panel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal utilidad hash -->
+<div class="overlay" id="toolOverlay">
+  <div class="modal tool" role="dialog" aria-modal="true" aria-labelledby="tTitle">
+    <h3 id="tTitle">Generar hash de contraseña</h3>
+    <p class="sub">Escribe la contraseña y copia el hash SHA-256 en el bloque <code>CONFIG</code> del HTML, como <code>hash:</code> en lugar de <code>pass:</code>.</p>
+    <div class="field">
+      <input type="text" id="tIn" placeholder="Contraseña en claro">
+    </div>
+    <textarea id="tOut" readonly placeholder="El hash aparecerá aquí" style="margin-top:12px"></textarea>
+    <p class="hint">Con <code>hash:</code> la contraseña no queda escrita en claro en el fichero. Sigue siendo una barrera de conveniencia, no seguridad de servidor.</p>
+    <div class="actions">
+      <button type="button" class="btn btn-ghost" id="tClose">Cerrar</button>
+      <button type="button" class="btn btn-primary" id="tCopy">Copiar hash</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ==========================================================================
+   CONFIGURACIÓN  —  edita solo este bloque
+   --------------------------------------------------------------------------
+   Para cada panel:
+     nombre        título de la tarjeta
+     descripcion   una o dos líneas
+     url           destino
+     pass          contraseña en claro   (rápido de editar)
+     hash          hash SHA-256          (recomendado; si existe, manda sobre "pass")
+                   -> para cambiarla: pulsa "Generar hash de contraseña" en el pie
+                      de la página, escribe la nueva y pega aquí el hash resultante
+     tags          etiquetas pequeñas
+     icono         "stock" | "caja" | "sat" | "ventas" | "tabla" | "grafico" | "panel"
+     nuevaPestana  true = abre en pestaña nueva (por defecto true)
+
+   Contraseña actual de los cuatro paneles: 082026
+   ========================================================================== */
+const CONFIG = {
+  marca:      "Leaseir",
+  marcaSub:   "Control de gestión",
+  titulo:     "Cuadro de mando",
+  lede:       "Acceso a los paneles de control. Selecciona un panel e introduce su contraseña.",
+  pie:        "Uso interno · Leaseir Technologies S.L.U.",
+
+  paneles: [
+    {
+      id: "stock",
+      nombre: "Stock Leaseir",
+      descripcion: "Evolución diaria del stock y seguimiento de inventario.",
+      url: "https://leaseir-stock-dashboard-ashy.vercel.app/",
+      hash: "432d3fddb71fe6d05451e698e7093295b8a8748f38c6a909c22496a65a5101af",
+      tags: ["Operaciones", "Diario"],
+      icono: "stock"
+    },
+    {
+      id: "caja",
+      nombre: "Evolución FCF",
+      descripcion: "Tesorería y previsión de caja por sociedad, con datos de Holded.",
+      url: "https://caja-leaseir.vercel.app/?desde=2026-01-01&vista=prevision&empresa=mesia",
+      hash: "432d3fddb71fe6d05451e698e7093295b8a8748f38c6a909c22496a65a5101af",
+      tags: ["Finanzas", "Previsión"],
+      icono: "caja"
+    },
+    {
+      id: "sat",
+      nombre: "SAT · Incidencias",
+      descripcion: "Incidencias de equipos láser en reparación: estado, técnico y tiempos.",
+      url: "https://iortizfigueroa.github.io/leaseir-sat-dashboard/",
+      hash: "432d3fddb71fe6d05451e698e7093295b8a8748f38c6a909c22496a65a5101af",
+      tags: ["Servicio técnico", "Incidencias"],
+      icono: "sat"
+    },
+    {
+      id: "airtable",
+      nombre: "Sales",
+      descripcion: "Seguimiento comercial en Airtable. Vista de trabajo compartida.",
+      url: "https://airtable.com/app9U5sz7YS8y9Oit/tblKDAT56Z9tX9zvd/viwBED3icBx3Af9jU?blocks=hide",
+      hash: "432d3fddb71fe6d05451e698e7093295b8a8748f38c6a909c22496a65a5101af",
+      tags: ["Comercial", "Airtable"],
+      icono: "ventas"
+    }
+  ]
+};
+/* ====================== fin de la configuración ====================== */
+
+
+/* ---------- SHA-256 (sin dependencias) ---------- */
+function sha256(str){
+  str = unescape(encodeURIComponent(str));
+  function rr(v,a){return (v>>>a)|(v<<(32-a));}
+  var mp=Math.pow, maxWord=mp(2,32), i, j, result='', words=[];
+  var bitLen=str.length*8;
+  var hash=sha256.h=sha256.h||[], k=sha256.k=sha256.k||[], pc=k.length, comp={};
+  for(var c=2; pc<64; c++){
+    if(!comp[c]){
+      for(i=0;i<313;i+=c) comp[i]=c;
+      hash[pc]=(mp(c,.5)*maxWord)|0;
+      k[pc++]=(mp(c,1/3)*maxWord)|0;
+    }
+  }
+  str+='\x80';
+  while(str.length%64-56) str+='\x00';
+  for(i=0;i<str.length;i++){
+    j=str.charCodeAt(i);
+    if(j>>8) return '';
+    words[i>>2]|=j<<((3-i)%4)*8;
+  }
+  words[words.length]=((bitLen/maxWord)|0);
+  words[words.length]=(bitLen);
+  for(j=0;j<words.length;){
+    var w=words.slice(j,j+=16), old=hash;
+    hash=hash.slice(0,8);
+    for(i=0;i<64;i++){
+      var w15=w[i-15], w2=w[i-2], a=hash[0], e=hash[4];
+      var t1=hash[7]+(rr(e,6)^rr(e,11)^rr(e,25))+((e&hash[5])^(~e&hash[6]))+k[i]
+        +(w[i]=(i<16)?w[i]:(w[i-16]+(rr(w15,7)^rr(w15,18)^(w15>>>3))+w[i-7]+(rr(w2,17)^rr(w2,19)^(w2>>>10)))|0);
+      var t2=(rr(a,2)^rr(a,13)^rr(a,22))+((a&hash[1])^(a&hash[2])^(hash[1]&hash[2]));
+      hash=[(t1+t2)|0].concat(hash);
+      hash[4]=(hash[4]+t1)|0;
+    }
+    for(i=0;i<8;i++) hash[i]=(hash[i]+old[i])|0;
+  }
+  for(i=0;i<8;i++){
+    for(j=3;j+1;j--){
+      var b=(hash[i]>>(j*8))&255;
+      result+=((b<16)?0:'')+b.toString(16);
+    }
+  }
+  return result;
+}
+
+/* ---------- Iconos ---------- */
+const ICONS = {
+  stock:'<path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/><path d="m7.5 4.3 9 5.1"/>',
+  caja:'<path d="M19 7V5a2 2 0 0 0-2-2H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v3"/><path d="M3 5v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-3"/><path d="M21 11h-4a2.5 2.5 0 0 0 0 5h4z"/>',
+  sat:'<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>',
+  tabla:'<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9.5h18"/><path d="M3 15h18"/><path d="M9.5 9.5V20"/><path d="M15 9.5V20"/>',
+  ventas:'<path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="m7 14 3.5-3.5 2.5 2.5L20 6"/><path d="M20 10V6h-4"/>',
+  grafico:'<path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M7 15l4-5 3 3 5-7"/>',
+  panel:'<rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/>'
+};
+const svg = n => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">'+(ICONS[n]||ICONS.panel)+'</svg>';
+
+/* ---------- Almacén de sesión (tolerante a fallos) ---------- */
+const store = {
+  ok(id){ try{ return sessionStorage.getItem('cm_'+id)==='1'; }catch(e){ return false; } },
+  set(id){ try{ sessionStorage.setItem('cm_'+id,'1'); }catch(e){} }
+};
+
+/* ---------- Pintado ---------- */
+document.getElementById('brandName').textContent = CONFIG.marca;
+document.getElementById('brandSub').textContent = CONFIG.marcaSub;
+document.getElementById('pageTitle').textContent = CONFIG.titulo;
+document.getElementById('pageLede').textContent = CONFIG.lede;
+document.getElementById('footNote').textContent = CONFIG.pie;
+document.title = CONFIG.marca + ' · ' + CONFIG.titulo;
+
+const grid = document.getElementById('grid');
+CONFIG.paneles.forEach((p, idx) => {
+  const card = document.createElement('button');
+  card.type = 'button';
+  card.className = 'card';
+  card.setAttribute('aria-label', 'Abrir ' + p.nombre);
+  card.innerHTML =
+    '<div class="card-top">' +
+      '<div class="icon">' + svg(p.icono) + '</div>' +
+      '<span class="lock"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>Protegido</span>' +
+    '</div>' +
+    '<h2></h2>' +
+    '<p></p>' +
+    '<div class="meta">' + (p.tags||[]).map(() => '<span class="tag"></span>').join('') + '</div>' +
+    '<div class="cta">Abrir panel <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13"/><path d="M13 6l6 6-6 6"/></svg></div>';
+  card.querySelector('h2').textContent = p.nombre;
+  card.querySelector('p').textContent = p.descripcion;
+  card.querySelectorAll('.tag').forEach((el, i) => el.textContent = (p.tags||[])[i]);
+  card.addEventListener('click', () => abrir(idx));
+  grid.appendChild(card);
+});
+
+/* ---------- Modal de acceso ---------- */
+const overlay = document.getElementById('overlay'),
+      mIcon = document.getElementById('mIcon'),
+      mTitle = document.getElementById('mTitle'),
+      mSub = document.getElementById('mSub'),
+      mPass = document.getElementById('mPass'),
+      mMsg = document.getElementById('mMsg'),
+      mForm = document.getElementById('mForm'),
+      mOk = document.getElementById('mOk'),
+      mRemember = document.getElementById('mRemember'),
+      modalBox = overlay.querySelector('.modal');
+
+let actual = null, fallos = 0;
+
+function ir(p){
+  if (p.nuevaPestana === false) { window.location.href = p.url; return; }
+  const a = document.createElement('a');
+  a.href = p.url; a.target = '_blank'; a.rel = 'noopener noreferrer';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+}
+
+function abrir(idx){
+  const p = CONFIG.paneles[idx];
+  if (store.ok(p.id) || (!p.pass && !p.hash)) { ir(p); return; }
+  actual = p; fallos = 0;
+  mIcon.innerHTML = svg(p.icono);
+  mTitle.textContent = p.nombre;
+  mSub.textContent = 'Introduce la contraseña para abrir este panel.';
+  mPass.value = ''; mPass.type = 'password'; mPass.classList.remove('bad');
+  mMsg.textContent = ''; mOk.disabled = false;
+  overlay.classList.add('open');
+  setTimeout(() => mPass.focus(), 60);
+}
+
+function cerrar(){ overlay.classList.remove('open'); actual = null; }
+
+function correcta(p, valor){
+  if (p.hash) return sha256(valor) === String(p.hash).toLowerCase().trim();
+  return valor === p.pass;
+}
+
+mForm.addEventListener('submit', e => {
+  e.preventDefault();
+  if (!actual) return;
+  if (correcta(actual, mPass.value)) {
+    if (mRemember.checked) store.set(actual.id);
+    mMsg.style.color = 'var(--ok)';
+    mMsg.textContent = 'Acceso correcto, abriendo…';
+    const p = actual;
+    setTimeout(() => { ir(p); cerrar(); mMsg.style.color = 'var(--err)'; }, 320);
+  } else {
+    fallos++;
+    mPass.classList.add('bad');
+    modalBox.classList.add('shake');
+    setTimeout(() => modalBox.classList.remove('shake'), 340);
+    mMsg.style.color = 'var(--err)';
+    mMsg.textContent = fallos >= 3 ? 'Contraseña incorrecta (' + fallos + ' intentos). Espera un momento.' : 'Contraseña incorrecta.';
+    mPass.select();
+    if (fallos >= 3) {
+      mOk.disabled = true;
+      setTimeout(() => { mOk.disabled = false; }, 2000);
+    }
+  }
+});
+
+document.getElementById('mCancel').addEventListener('click', cerrar);
+overlay.addEventListener('mousedown', e => { if (e.target === overlay) cerrar(); });
+document.getElementById('mEye').addEventListener('click', () => {
+  mPass.type = mPass.type === 'password' ? 'text' : 'password';
+  mPass.focus();
+});
+mPass.addEventListener('input', () => { mPass.classList.remove('bad'); mMsg.textContent = ''; });
+
+/* ---------- Utilidad: generar hash ---------- */
+const toolOverlay = document.getElementById('toolOverlay'),
+      tIn = document.getElementById('tIn'),
+      tOut = document.getElementById('tOut');
+
+document.getElementById('toolBtn').addEventListener('click', () => {
+  toolOverlay.classList.add('open');
+  tIn.value = ''; tOut.value = '';
+  setTimeout(() => tIn.focus(), 60);
+});
+document.getElementById('tClose').addEventListener('click', () => toolOverlay.classList.remove('open'));
+toolOverlay.addEventListener('mousedown', e => { if (e.target === toolOverlay) toolOverlay.classList.remove('open'); });
+tIn.addEventListener('input', () => { tOut.value = tIn.value ? sha256(tIn.value) : ''; });
+document.getElementById('tCopy').addEventListener('click', () => {
+  if (!tOut.value) return;
+  tOut.select();
+  try { navigator.clipboard.writeText(tOut.value); } catch(e) { try { document.execCommand('copy'); } catch(_){} }
+  const b = document.getElementById('tCopy'); const t = b.textContent;
+  b.textContent = 'Copiado'; setTimeout(() => b.textContent = t, 1200);
+});
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { cerrar(); toolOverlay.classList.remove('open'); }
+});
+</script>
+</body>
+</html>
