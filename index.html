@@ -73,32 +73,33 @@
     -webkit-font-smoothing:antialiased;
     display:flex;flex-direction:column;
   }
-  .wrap{width:100%;max-width:1180px;margin:0 auto;padding:52px 24px 36px;flex:1;
+  .wrap{width:100%;max-width:1440px;margin:0 auto;padding:26px 24px 18px;flex:1;
         display:flex;flex-direction:column;justify-content:center}
 
   /* ---------- Cabecera ---------- */
-  header{margin-bottom:34px}
-  .brand{display:flex;align-items:center;gap:11px;margin-bottom:26px}
+  header{margin-bottom:20px}
+  .brand{display:flex;align-items:center;gap:11px;margin-bottom:14px}
   .mark{width:34px;height:auto;flex:none;color:var(--teal)}
   @media (prefers-color-scheme: dark){ .mark{color:var(--sky)} }
   .mark svg{width:100%;height:auto;display:block}
   .wordmark{font-size:21px;font-weight:500;letter-spacing:.5px;color:var(--text)}
   .divider{width:1px;height:20px;background:var(--border-strong);margin:0 3px}
   .brand-sub{font-size:13px;color:var(--faint);letter-spacing:.3px}
-  h1{font-size:clamp(30px,5vw,42px);line-height:1.1;letter-spacing:-.5px;margin:0 0 10px;
+  h1{font-size:clamp(24px,3.4vw,32px);line-height:1.1;letter-spacing:-.5px;margin:0 0 6px;
      font-weight:500;color:var(--accent)}
-  .lede{margin:0;color:var(--muted);font-size:15.5px;max-width:54ch;line-height:1.55;font-weight:300}
+  .lede{margin:0;color:var(--muted);font-size:14px;max-width:70ch;line-height:1.45;font-weight:300}
 
   /* ---------- Rejilla ---------- */
-  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+  .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+  @media (max-width:1280px){ .grid{grid-template-columns:repeat(3,1fr)} }
   @media (max-width:1000px){ .grid{grid-template-columns:repeat(2,1fr)} }
   @media (max-width:660px){ .grid{grid-template-columns:1fr} }
 
   .card{
     position:relative;text-align:left;font:inherit;color:inherit;cursor:pointer;
     background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
-    padding:24px 24px 20px;box-shadow:var(--shadow);
-    display:flex;flex-direction:column;gap:12px;
+    padding:16px 17px 13px;box-shadow:var(--shadow);
+    display:flex;flex-direction:column;gap:8px;
     transition:transform .2s cubic-bezier(.2,.7,.3,1), box-shadow .2s ease, border-color .2s ease;
   }
   .card::after{
@@ -111,26 +112,26 @@
   .card:focus-visible{box-shadow:var(--shadow-lg),0 0 0 3px var(--accent-soft)}
   .card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
   .icon{
-    width:46px;height:46px;border-radius:14px;flex:none;display:grid;place-items:center;
+    width:36px;height:36px;border-radius:11px;flex:none;display:grid;place-items:center;
     background:var(--accent-soft);color:var(--accent);
   }
-  .icon svg{width:22px;height:22px}
-  .lock{display:flex;align-items:center;gap:5px;font-size:11.5px;color:var(--faint);letter-spacing:.2px;
+  .icon svg{width:18px;height:18px}
+  .lock{display:flex;align-items:center;gap:4px;font-size:10.5px;color:var(--faint);letter-spacing:.2px;
         border:1px solid var(--border);border-radius:999px;padding:4px 10px;white-space:nowrap;background:var(--surface-2)}
   .lock svg{width:11px;height:11px}
-  .card h2{margin:0;font-size:19px;letter-spacing:-.1px;font-weight:500;color:var(--text)}
-  .card p{margin:0;color:var(--muted);font-size:14px;line-height:1.5;font-weight:300}
+  .card h2{margin:0;font-size:16px;letter-spacing:-.1px;font-weight:500;color:var(--text)}
+  .card p{margin:0;color:var(--muted);font-size:12.7px;line-height:1.42;font-weight:300}
   .meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:2px}
-  .tag{font-size:11.5px;color:var(--muted);background:var(--surface-2);border:1px solid var(--border);
-       border-radius:999px;padding:3px 10px;font-weight:400}
-  .cta{margin-top:auto;padding-top:14px;border-top:1px solid var(--border);
-       display:flex;align-items:center;gap:7px;font-size:14px;font-weight:500;color:var(--accent)}
+  .tag{font-size:10.8px;color:var(--muted);background:var(--surface-2);border:1px solid var(--border);
+       border-radius:999px;padding:2px 8px;font-weight:400}
+  .cta{margin-top:auto;padding-top:10px;border-top:1px solid var(--border);
+       display:flex;align-items:center;gap:7px;font-size:13px;font-weight:500;color:var(--accent)}
   .cta svg{width:15px;height:15px;transition:transform .2s ease}
   .card:hover .cta svg{transform:translateX(4px)}
 
   /* ---------- Pie ---------- */
   footer{border-top:1px solid var(--border)}
-  .foot{max-width:1180px;margin:0 auto;padding:18px 24px 34px;display:flex;flex-wrap:wrap;
+  .foot{max-width:1440px;margin:0 auto;padding:11px 24px 14px;display:flex;flex-wrap:wrap;
         gap:10px 18px;align-items:center;justify-content:space-between;font-size:12.5px;color:var(--faint);font-weight:300}
   .foot button{background:none;border:none;font:inherit;color:var(--faint);cursor:pointer;padding:0;
                text-decoration:underline;text-underline-offset:3px}
