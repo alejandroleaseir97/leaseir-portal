@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Conciliación Leaseir</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+:root{
+  --bg:#EEF2F1; --card:#FFFFFF; --ink:#16211E; --muted:#5E6E69; --line:#DCE4E2;
+  --accent:#0E6B62; --accent-soft:#E2F1EE;
+  --ok:#15803D; --ok-soft:#DCFCE7; --no:#C2410C; --no-soft:#FFEDD5;
+  --wait:#B45309; --wait-soft:#FEF3C7; --ask:#1D4ED8; --ask-soft:#DBEAFE;
+  --shadow:0 1px 2px rgba(16,40,34,.06),0 6px 20px rgba(16,40,34,.07);
+  --sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14px;line-height:1.45}
+button{font-family:inherit}
+.app{height:100%;display:grid;grid-template-rows:auto auto 1fr;gap:14px;padding:16px;max-width:1280px;margin:0 auto}
+header{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 16px}
+h1{font-size:20px;font-weight:700;margin:0;letter-spacing:-.01em}
+.sub{color:var(--muted);font-size:13px}
+.kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.kpi{background:var(--card);border-radius:16px;box-shadow:var(--shadow);padding:12px 16px;display:flex;align-items:center;gap:12px}
+.kpi .dot{width:12px;height:12px;border-radius:50%;flex:none}
+.kpi b{font:600 26px/1 var(--mono);font-variant-numeric:tabular-nums}
+.kpi span{color:var(--muted);font-size:12.5px;display:block;margin-top:3px}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:14px;min-height:0}
+.col{background:var(--card);border-radius:18px;box-shadow:var(--shadow);display:flex;flex-direction:column;min-height:0}
+.col h2{font-size:14px;margin:0;padding:14px 16px 4px;display:flex;align-items:center;gap:8px}
+.count{font:600 12px var(--mono);background:var(--bg);color:var(--muted);padding:2px 8px;border-radius:999px}
+.hint{color:var(--muted);font-size:12.5px;padding:0 16px 10px}
+.list{overflow:auto;padding:0 10px 12px;display:flex;flex-direction:column;gap:6px;min-height:0}
+.row{display:grid;grid-template-columns:6px 1fr auto;gap:12px;align-items:center;padding:10px 12px 10px 0;border-radius:12px;cursor:pointer}
+.row:hover{background:var(--bg)}
+.row:focus-visible,.btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.stripe{align-self:stretch;border-radius:4px}
+.who{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.what{color:var(--muted);font-size:12.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.right{display:flex;align-items:center;gap:10px}
+.amt{font:600 14px var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.amt.in{color:var(--ok)}
+.pill{font-size:11.5px;font-weight:600;padding:3px 9px;border-radius:999px;white-space:nowrap}
+.acts{display:flex;gap:6px}
+.btn{border:0;border-radius:10px;font-weight:600;font-size:13px;padding:7px 12px;cursor:pointer}
+.btn.ok{background:var(--ok-soft);color:var(--ok)}
+.btn.no{background:var(--no-soft);color:var(--no)}
+.btn.main{background:var(--accent);color:#fff}
+.btn.ghost{background:var(--bg);color:var(--ink)}
+.btn.big{padding:10px 18px;font-size:14px}
+.sendbar .btn.ghost{background:var(--card);box-shadow:var(--shadow)}
+.empty{color:var(--muted);text-align:center;padding:28px 12px;font-size:13px}
+.empty b{display:block;font-size:26px;color:var(--ok);margin-bottom:4px}
+.scrim{position:fixed;inset:0;background:rgba(10,20,18,.35);display:flex;align-items:center;justify-content:center;padding:16px;z-index:10}
+.modal{background:var(--card);border-radius:20px;box-shadow:0 20px 60px rgba(0,0,0,.25);width:min(620px,100%);max-height:calc(100% - 32px);overflow:auto;padding:20px 22px;display:flex;flex-direction:column;gap:14px}
+.modal h3{margin:0;font-size:18px}
+.mhead{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.mamt{font:600 22px var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.kv{display:grid;grid-template-columns:120px 1fr;gap:6px 12px;font-size:13px;margin:0}
+.kv dt{color:var(--muted)} .kv dd{margin:0;word-break:break-word}
+.box{background:var(--bg);border-radius:12px;padding:12px 14px;font-size:13px}
+.box h4{margin:0 0 6px;font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.box ul{margin:0;padding-left:18px}
+label{font-size:12.5px;color:var(--muted);font-weight:600}
+textarea,input[type=password]{width:100%;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--ink);font:14px var(--sans);padding:10px 12px}
+textarea{min-height:74px;resize:vertical}
+.mfoot{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end;align-items:center}
+.sendbar{display:flex;align-items:center;gap:12px}
+.toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:9px 16px;border-radius:12px;font-size:13px;font-weight:600;z-index:20}
+.gate{height:100%;display:flex;align-items:center;justify-content:center;padding:16px}
+.gate form{background:var(--card);border-radius:20px;box-shadow:var(--shadow);padding:28px;width:min(380px,100%);display:flex;flex-direction:column;gap:12px}
+.gate h1{font-size:18px}
+.err{color:var(--no);font-size:13px;min-height:18px}
+@media (max-width:820px){
+  html,body{height:auto}
+  .app{height:auto}
+  .cols{grid-template-columns:1fr}
+  .list{max-height:60vh}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+
+<div class="gate" id="gate">
+  <form id="gateForm">
+    <h1>Conciliación bancaria · LT</h1>
+    <div class="sub">Introduce la contraseña para ver las propuestas.</div>
+    <input type="password" id="pw" autocomplete="current-password" aria-label="Contraseña" placeholder="Contraseña">
+    <div class="err" id="err"></div>
+    <button class="btn main big" type="submit">Entrar</button>
+  </form>
+</div>
+
+<div class="app" id="app" hidden>
+  <header>
+    <div>
+      <h1>Conciliación bancaria · Leaseir Technologies</h1>
+      <div class="sub" id="sub"></div>
+    </div>
+    <div class="sendbar">
+      <span class="sub" id="sendInfo"></span>
+      <button class="btn ghost big" id="refreshBtn">Actualizar</button>
+      <button class="btn main big" id="sendBtn">Enviar mis respuestas</button>
+    </div>
+  </header>
+
+  <section class="kpis" aria-label="Resumen">
+    <div class="kpi"><i class="dot" style="background:var(--wait)"></i><div><b id="k-pend">–</b><span>Sin responder</span></div></div>
+    <div class="kpi"><i class="dot" style="background:var(--ok)"></i><div><b id="k-ok">–</b><span>OK para conciliar</span></div></div>
+    <div class="kpi"><i class="dot" style="background:var(--ask)"></i><div><b id="k-resp">–</b><span>Preguntas respondidas</span></div></div>
+  </section>
+
+  <div class="cols">
+    <section class="col">
+      <h2>Propuestas de conciliación <span class="count" id="c-conc">0</span></h2>
+      <div class="hint">Movimiento y factura cuadran. Dale OK o No; con OK se concilia en la siguiente pasada.</div>
+      <div class="list" id="l-conc"></div>
+    </section>
+    <section class="col">
+      <h2>Necesito que me digas <span class="count" id="c-ask">0</span></h2>
+      <div class="hint">No los sé conciliar solo y no se tocan. Pincha en cada uno y contesta.</div>
+      <div class="list" id="l-ask"></div>
+    </section>
+  </div>
+</div>
+
+<div id="modal-root"></div>
+
+<script>
+(function(){
+  const TO = 'avicente@leaseir.com';
+  const $ = s => document.querySelector(s);
+  const fmt = (n, cur) => new Intl.NumberFormat('es-ES',{style:'currency',currency:cur||'EUR',useGrouping:'always',minimumFractionDigits:2}).format(n);
+  const fdate = s => { if(!s) return ''; const [y,m,d]=String(s).slice(0,10).split('-'); return `${d}/${m}/${y}`; };
+  const isConc = it => it.tipo==='conciliar' || it.tipo==='remesa_cobro' || it.tipo==='remesa_pago';
+  let DATA=null, ans={}, KEY='';
+
+  function toast(msg){ const t=document.createElement('div'); t.className='toast'; t.textContent=msg; document.body.appendChild(t); setTimeout(()=>t.remove(),2400); }
+  function load(){ try{ ans=JSON.parse(localStorage.getItem(KEY)||'{}')||{}; }catch(e){ ans={}; } }
+  function save(){ try{ localStorage.setItem(KEY, JSON.stringify(ans)); }catch(e){} }
+
+  // ---- descifrado (AES-GCM, clave PBKDF2-SHA256) ----
+  const b64 = s => Uint8Array.from(atob(s), c=>c.charCodeAt(0));
+  async function decrypt(pass){
+    const env = await fetch('data.enc.json?v='+Date.now(), {cache:'no-store'}).then(r=>r.json());
+    const base = await crypto.subtle.importKey('raw', new TextEncoder().encode(pass), 'PBKDF2', false, ['deriveKey']);
+    const key = await crypto.subtle.deriveKey({name:'PBKDF2', salt:b64(env.salt), iterations:env.iter, hash:'SHA-256'}, base, {name:'AES-GCM', length:256}, false, ['decrypt']);
+    const plain = await crypto.subtle.decrypt({name:'AES-GCM', iv:b64(env.iv)}, key, b64(env.ct));
+    return JSON.parse(new TextDecoder().decode(plain));
+  }
+
+  $('#gateForm').addEventListener('submit', async e=>{
+    e.preventDefault();
+    $('#err').textContent='';
+    try{
+      DATA = await decrypt($('#pw').value);
+      try{ sessionStorage.setItem('lt-conc-pw', $('#pw').value); }catch(e){}
+      start();
+    }catch(err){ $('#err').textContent='Contraseña incorrecta.'; $('#pw').select(); }
+  });
+  (async()=>{ let p=null; try{ p=sessionStorage.getItem('lt-conc-pw'); }catch(e){} if(p){ try{ DATA=await decrypt(p); start(); }catch(e){} } })();
+
+  function start(){
+    KEY='lt-conc-'+DATA.lote;
+    load();
+    $('#gate').hidden=true; $('#app').hidden=false;
+    $('#sub').textContent=`Pasada del ${fdate(DATA.lote)} · ${DATA.nota||''}`;
+    render();
+  }
+
+  function stateOf(it){
+    const a=ans[it._id]||{};
+    if(isConc(it)) return a.estado==='ok'?'ok':a.estado==='no'?'no':'pendiente';
+    return a.respuesta?'respondida':'pendiente';
+  }
+  const ST = {pendiente:['Pendiente','var(--wait)','var(--wait-soft)'], ok:['OK','var(--ok)','var(--ok-soft)'], no:['No','var(--no)','var(--no-soft)'], respondida:['Respondida','var(--ask)','var(--ask-soft)']};
+
+  function rowEl(it){
+    const s=stateOf(it), st=ST[s];
+    const b=document.createElement('div'); b.className='row'; b.tabIndex=0; b.setAttribute('role','button');
+    const stripe=document.createElement('i'); stripe.className='stripe'; stripe.style.background=st[1];
+    const mid=document.createElement('div'); mid.style.minWidth='0';
+    const who=document.createElement('div'); who.className='who'; who.textContent=`${it.n}. ${it.contraparte||'—'}`;
+    const what=document.createElement('div'); what.className='what'; what.textContent=[fdate(it.fecha), it.cuenta_corta||it.cuenta, it.resumen].filter(Boolean).join(' · ');
+    mid.append(who,what);
+    const right=document.createElement('div'); right.className='right';
+    const amt=document.createElement('span'); amt.className='amt'+(it.importe>0?' in':''); amt.textContent=fmt(it.importe,it.moneda);
+    right.append(amt);
+    if(isConc(it) && s==='pendiente'){
+      const acts=document.createElement('span'); acts.className='acts';
+      const ok=document.createElement('button'); ok.className='btn ok'; ok.textContent='OK';
+      const no=document.createElement('button'); no.className='btn no'; no.textContent='No';
+      ok.onclick=e=>{e.stopPropagation(); ans[it._id]={estado:'ok',comentario:''}; save(); render();};
+      no.onclick=e=>{e.stopPropagation(); openModal(it);};
+      acts.append(ok,no); right.append(acts);
+    } else {
+      const p=document.createElement('span'); p.className='pill'; p.textContent=st[0]; p.style.color=st[1]; p.style.background=st[2]; right.append(p);
+    }
+    b.append(stripe,mid,right);
+    b.onclick=()=>openModal(it);
+    b.onkeydown=e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); openModal(it);} };
+    return b;
+  }
+
+  function render(){
+    const items=[...DATA.items].sort((a,b)=>(a.n||0)-(b.n||0));
+    const conc=items.filter(isConc), ask=items.filter(it=>!isConc(it));
+    const lc=$('#l-conc'), la=$('#l-ask'); lc.replaceChildren(); la.replaceChildren();
+    conc.forEach(it=>lc.append(rowEl(it))); ask.forEach(it=>la.append(rowEl(it)));
+    if(!conc.length) lc.innerHTML='<div class="empty"><b>0</b>Hoy no hay movimientos que cuadren al céntimo con una factura.</div>';
+    if(!ask.length) la.innerHTML='<div class="empty"><b>✓</b>Nada pendiente de aclarar.</div>';
+    $('#c-conc').textContent=conc.length; $('#c-ask').textContent=ask.length;
+    const states=items.map(stateOf);
+    $('#k-pend').textContent=states.filter(s=>s==='pendiente').length;
+    $('#k-ok').textContent=states.filter(s=>s==='ok').length;
+    $('#k-resp').textContent=states.filter(s=>s==='respondida').length;
+    const n=states.filter(s=>s!=='pendiente').length;
+    $('#sendInfo').textContent = n ? `${n} de ${items.length} contestadas` : '';
+  }
+
+  function openModal(it){
+    const a=ans[it._id]||{};
+    const scrim=document.createElement('div'); scrim.className='scrim';
+    const m=document.createElement('div'); m.className='modal'; m.setAttribute('role','dialog'); m.setAttribute('aria-modal','true');
+    const close=()=>{ scrim.remove(); document.removeEventListener('keydown',esc); };
+    const esc=e=>{ if(e.key==='Escape') close(); };
+    document.addEventListener('keydown',esc);
+    scrim.onclick=e=>{ if(e.target===scrim) close(); };
+
+    const head=document.createElement('div'); head.className='mhead';
+    const h3=document.createElement('h3'); h3.textContent=`${it.n}. ${it.contraparte||'Movimiento'}`;
+    const amt=document.createElement('div'); amt.className='mamt'; amt.style.color=it.importe>0?'var(--ok)':'var(--ink)'; amt.textContent=fmt(it.importe,it.moneda);
+    head.append(h3,amt);
+
+    const kv=document.createElement('dl'); kv.className='kv';
+    const add=(k,v)=>{ if(!v) return; const dt=document.createElement('dt'); dt.textContent=k; const dd=document.createElement('dd'); dd.textContent=v; kv.append(dt,dd); };
+    add('Fecha banco', fdate(it.fecha)); add('Cuenta', it.cuenta); add('Concepto banco', it.concepto);
+
+    const q=document.createElement('div'); q.className='box';
+    const qh=document.createElement('h4'); qh.textContent=isConc(it)?'Propuesta':'Lo que necesito saber';
+    const qp=document.createElement('div'); qp.textContent=it.pregunta||it.propuesta||'';
+    q.append(qh,qp);
+    m.append(head,kv,q);
+
+    if(Array.isArray(it.detalle)&&it.detalle.length){
+      const d=document.createElement('div'); d.className='box';
+      const dh=document.createElement('h4'); dh.textContent=it.detalle_titulo||'De dónde sale';
+      const ul=document.createElement('ul'); it.detalle.forEach(x=>{ const li=document.createElement('li'); li.textContent=x; ul.append(li); });
+      d.append(dh,ul); m.append(d);
+    }
+    if(it.fuente){ const f=document.createElement('div'); f.className='sub'; f.textContent='Origen del dato: '+it.fuente; m.append(f); }
+
+    const lab=document.createElement('label'); lab.htmlFor='ta-'+it._id; lab.textContent=isConc(it)?'Comentario (opcional)':'Tu respuesta';
+    const ta=document.createElement('textarea'); ta.id='ta-'+it._id; ta.value=isConc(it)?(a.comentario||''):(a.respuesta||'');
+    ta.placeholder=isConc(it)?'Solo si quieres explicar el No o matizar el OK':'Ej.: va contra la SInv26-202601813; o: la factura la subo yo mañana';
+    m.append(lab,ta);
+
+    const foot=document.createElement('div'); foot.className='mfoot';
+    const cancel=document.createElement('button'); cancel.className='btn ghost'; cancel.textContent='Cerrar'; cancel.onclick=close;
+    foot.append(cancel);
+    if(isConc(it)){
+      const no=document.createElement('button'); no.className='btn no'; no.textContent='No conciliar';
+      const ok=document.createElement('button'); ok.className='btn ok'; ok.textContent='OK, conciliar';
+      no.onclick=()=>{ ans[it._id]={estado:'no',comentario:ta.value.trim()}; save(); render(); close(); };
+      ok.onclick=()=>{ ans[it._id]={estado:'ok',comentario:ta.value.trim()}; save(); render(); close(); };
+      foot.append(no,ok);
+    } else {
+      const g=document.createElement('button'); g.className='btn main'; g.textContent='Guardar respuesta';
+      g.onclick=()=>{ const v=ta.value.trim(); if(!v){ ta.focus(); toast('Escribe la respuesta'); return; } ans[it._id]={respuesta:v}; save(); render(); close(); };
+      foot.append(g);
+    }
+    m.append(foot);
+    scrim.append(m); $('#modal-root').append(scrim);
+    ta.focus();
+  }
+
+  function buildText(){
+    const lines=[`Respuestas de conciliación LT · pasada ${DATA.lote}`,''];
+    [...DATA.items].sort((a,b)=>a.n-b.n).forEach(it=>{
+      const a=ans[it._id]; if(!a) return;
+      const head=`[${it._id}] ${it.n}. ${it.contraparte} (${fmt(it.importe,it.moneda)})`;
+      if(isConc(it)) lines.push(`${head}: ${a.estado==='ok'?'OK':'NO'}${a.comentario?' — '+a.comentario:''}`);
+      else lines.push(`${head}: ${a.respuesta}`);
+    });
+    return lines.join('\n');
+  }
+
+  $('#refreshBtn').onclick=()=>{
+    const subject='Conciliación LT - pedir pasada';
+    const text=`Por favor, haz una pasada nueva de la conciliación de LT.\n\n(Enviado desde la web de conciliación; última pasada vista: ${DATA.lote})`;
+    const scrim=document.createElement('div'); scrim.className='scrim';
+    const m=document.createElement('div'); m.className='modal';
+    const h3=document.createElement('h3'); h3.textContent='Pedir una pasada nueva';
+    const p=document.createElement('div'); p.className='sub';
+    p.textContent=`Claude vuelve a revisar Holded cuando recibe este email en ${TO}. En cuanto termine, recarga esta página para ver las propuestas nuevas. Si ya has contestado algo, envía antes tus respuestas.`;
+    const foot=document.createElement('div'); foot.className='mfoot';
+    const close=()=>scrim.remove();
+    const c=document.createElement('button'); c.className='btn ghost'; c.textContent='Cerrar'; c.onclick=close;
+    const rl=document.createElement('button'); rl.className='btn ghost'; rl.textContent='Recargar página'; rl.onclick=()=>location.reload();
+    const gm=document.createElement('a'); gm.className='btn ghost'; gm.textContent='Pedir por Gmail'; gm.target='_blank'; gm.rel='noopener'; gm.style.textDecoration='none';
+    gm.href='https://mail.google.com/mail/?view=cm&fs=1&to='+encodeURIComponent(TO)+'&su='+encodeURIComponent(subject)+'&body='+encodeURIComponent(text);
+    const ml=document.createElement('a'); ml.className='btn main'; ml.textContent='Pedir por mi correo'; ml.style.textDecoration='none';
+    ml.href='mailto:'+TO+'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(text);
+    foot.append(c,rl,gm,ml);
+    m.append(h3,p,foot); scrim.append(m); document.body.append(scrim);
+    scrim.onclick=e=>{ if(e.target===scrim) close(); };
+  };
+
+  $('#sendBtn').onclick=()=>{
+    const n=Object.keys(ans).length;
+    if(!n){ toast('Aún no has contestado nada'); return; }
+    const text=buildText();
+    const subject=`Conciliación LT - respuestas Eli ${DATA.lote}`;
+    const scrim=document.createElement('div'); scrim.className='scrim';
+    const m=document.createElement('div'); m.className='modal';
+    const h3=document.createElement('h3'); h3.textContent='Enviar respuestas';
+    const p=document.createElement('div'); p.className='sub'; p.textContent=`Se enviará un email a ${TO} con este texto. Si tu correo no se abre, cópialo y mándalo tú con el asunto «${subject}».`;
+    const ta=document.createElement('textarea'); ta.value=text; ta.readOnly=true; ta.style.minHeight='180px';
+    const foot=document.createElement('div'); foot.className='mfoot';
+    const close=()=>scrim.remove();
+    const c=document.createElement('button'); c.className='btn ghost'; c.textContent='Cerrar'; c.onclick=close;
+    const cp=document.createElement('button'); cp.className='btn ghost'; cp.textContent='Copiar texto';
+    cp.onclick=async()=>{ try{ await navigator.clipboard.writeText(text); toast('Copiado'); }catch(e){ ta.select(); } };
+    const gm=document.createElement('a'); gm.className='btn ghost'; gm.textContent='Abrir en Gmail'; gm.target='_blank'; gm.rel='noopener';
+    gm.href='https://mail.google.com/mail/?view=cm&fs=1&to='+encodeURIComponent(TO)+'&su='+encodeURIComponent(subject)+'&body='+encodeURIComponent(text);
+    gm.style.textDecoration='none';
+    const ml=document.createElement('a'); ml.className='btn main'; ml.textContent='Abrir mi correo'; ml.style.textDecoration='none';
+    ml.href='mailto:'+TO+'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(text);
+    foot.append(c,cp,gm,ml);
+    m.append(h3,p,ta,foot); scrim.append(m); document.body.append(scrim);
+    scrim.onclick=e=>{ if(e.target===scrim) close(); };
+  };
+})();
+</script>
+</body>
+</html>
