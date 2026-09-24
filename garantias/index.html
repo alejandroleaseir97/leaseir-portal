@@ -117,7 +117,7 @@ td.cl{max-width:180px;overflow:hidden;text-overflow:ellipsis}
 .acc tbody tr{cursor:pointer}
 .acc tbody tr:hover td{background:var(--soft)}
 .stc{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
-.md.wide{width:min(1060px,100%)}
+.md.wide{width:min(1220px,100%)}
 tr.dirty td{background:#FFF9EC}
 .minp{width:64px;border:1px solid var(--line);border-radius:9px;padding:5px 8px;font:inherit;font-weight:700;text-align:right;font-variant-numeric:tabular-nums}
 .minp:focus{outline:2px solid var(--acc);outline-offset:1px}
@@ -228,7 +228,7 @@ const TODAY=new Date(D.hoy+'T12:00:00');
 const HOLDED_DATE=new Date(D.holdedAt+'T12:00:00');
 const MTC={A:'#17915E',B:'#2E6BDE',C:'#D4861A',D:'#8C7BC4'};
 const DEFAULT_MT={A:{t:'',d:''},B:{t:'',d:''},C:{t:'',d:''},D:{t:'',d:''}};
-const DEFAULT_RULES={def:12,rules:[{p:'Sin Vello',m:12},{p:'Elha',m:24},{p:'Epil Point',m:36}],manual:{},gone:['La Gavia'],mt:JSON.parse(JSON.stringify(DEFAULT_MT)),mtc:{}};
+const DEFAULT_RULES={def:12,rules:[{p:'Sin Vello',m:12},{p:'Elha',m:24},{p:'Epil Point',m:36}],manual:{},gone:['La Gavia'],full:[{p:'Sin Vello',m:6}],mt:JSON.parse(JSON.stringify(DEFAULT_MT)),mtc:{}};
 const mtOf=c=>(RULES.mtc||{})[c]||null;
 const mtName=k=>k?('Tipo '+k+((RULES.mt&&RULES.mt[k]&&RULES.mt[k].t)?' · '+RULES.mt[k].t:'')):'';
 const mtBadge=k=>k?`<span class="tb" style="background:${MTC[k]}" title="${esc(mtName(k))}">${k}</span>`:'';
@@ -253,7 +253,7 @@ const STORD={garantia:0,mant:1,sincob:2,renting:3,otro:4};
 function sortArr(arr,s,G){if(!s||!G[s.k])return arr;const g=G[s.k];return arr.slice().sort((x,y)=>{const a=g(x),b=g(y);const na=a==null||a==='',nb=b==null||b==='';if(na&&nb)return 0;if(na)return 1;if(nb)return -1;const r=typeof a==='string'?a.localeCompare(b,'es',{sensitivity:'base',numeric:true}):a-b;return s.d*r})}
 function th(tab,k,label,cls){const s=SORT[tab];const on=s&&s.k===k;return `<th class="sth${cls?' '+cls:''}${on?' on':''}" data-sk="${k}" title="Ordenar por ${label.toLowerCase()}" aria-sort="${on?(s.d>0?'ascending':'descending'):'none'}">${label}<span class="ar">${on?(s.d>0?'▲':'▼'):'↕'}</span></th>`}
 function wireSort(root,tab,re){root.querySelectorAll('th[data-sk]').forEach(t=>t.onclick=ev=>{ev.stopPropagation();const k=t.dataset.sk;const s=SORT[tab];SORT[tab]=s&&s.k===k?{k,d:-s.d}:{k,d:SDIR[k]||1};re()})}
-const GEQ={serie:o=>o.e.s,cliente:o=>o.e.c,equipo:o=>o.e.dv,pieza:o=>o.e.t==='C'?o.e.hp:null,venta:o=>o.d?o.d.getTime():null,fin:o=>o.end&&o.st!=='renting'?o.end.getTime():null,estado:o=>STORD[o.st],cuota:o=>o.e.m&&o.ma&&o.e.m.precio?o.e.m.precio+(o.e.m.hpx||0):null,fact:o=>o.e.m?(lastInv(o.e.m.ci)||{}).fecha:null};
+const GEQ={full:o=>o.fEnd&&o.e.m?o.fEnd.getTime():null,serie:o=>o.e.s,cliente:o=>o.e.c,equipo:o=>o.e.dv,pieza:o=>o.e.t==='C'?o.e.hp:null,venta:o=>o.d?o.d.getTime():null,fin:o=>o.end&&o.st!=='renting'?o.end.getTime():null,estado:o=>STORD[o.st],cuota:o=>o.e.m&&o.ma&&o.e.m.precio?o.e.m.precio+(o.e.m.hpx||0):null,fact:o=>o.e.m?(lastInv(o.e.m.ci)||{}).fecha:null};
 
 // ---- Holded: último recibo por cliente
 const invByCi={};D.inv.forEach(v=>{(invByCi[v.ci]=invByCi[v.ci]||[]).push(v)});
@@ -263,6 +263,9 @@ const ACTIVE_DAYS=70;
 const mActive=m=>{if(!m)return false;const li=lastInv(m.ci);return li&&days(pd(li.fecha),HOLDED_DATE)<=ACTIVE_DAYS};
 
 function ruleFor(c){if(RULES.manual&&Object.prototype.hasOwnProperty.call(RULES.manual,c||''))return {p:c,m:RULES.manual[c],manual:true};const lc=(c||'').toLowerCase();for(const r of RULES.rules){if(r.p&&lc.includes(r.p.toLowerCase()))return r}return null}
+function fullFor(c){const lc=(c||'').toLowerCase();return (RULES.full||[]).find(r=>r.p&&r.m>0&&lc.includes(r.p.toLowerCase()))}
+function readFull(){const box=document.getElementById('rfull');if(!box)return RULES.full||[];return [...box.querySelectorAll('[data-fr]')].map(r=>({p:r.querySelector('.fp').value.trim(),m:parseInt(r.querySelector('.fm').value,10)||0})).filter(r=>r.p&&r.m>0)}
+function fullCell(o){if(!o.fRule||!o.e.m)return '';const on=o.fOn;const pend=o.fStart&&TODAY<o.fStart;return `<span class="pill ${on?'p-mant':pend?'p-garantia':'p-otro'}" title="${esc(o.fRule.m+' meses con todas las reparaciones cubiertas al entrar en mantenimiento ('+o.fRule.p+'). Desde '+fd(o.fStart)+', '+o.fSrc)}">${on?'✓ ':''}${fd(o.fEnd)}</span>`}
 function goneFor(c){const lc=(c||'').toLowerCase();return (RULES.gone||[]).find(g=>g&&lc.includes(g.toLowerCase()))}
 function monthsFor(c){const r=ruleFor(c);return r?r.m:RULES.def}
 
@@ -272,6 +275,10 @@ function evalEq(e,at){
   o.end=d?addM(d,o.months):null;
   const ma=mActive(e.m)&&(!at||at>=TODAY);
   o.ma=ma;
+  const fr=e.m?fullFor(e.c):null;
+  if(fr&&e.m){const cd=e.m.contrato&&/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(e.m.contrato)?(()=>{const [a,b,c]=e.m.contrato.split('/').map(Number);return new Date(c,b-1,a,12)})():null;
+    o.fStart=cd||o.end;o.fSrc=cd?'fecha de contrato en la factura':'fin de garantía (entra en mantenimiento al acabar la garantía)';
+    o.fEnd=o.fStart?addM(o.fStart,fr.m):null;o.fRule=fr;o.fOn=!!(o.fEnd&&o.ma&&TODAY>=o.fStart&&TODAY<=o.fEnd)}
   const rt=e.rt;
   if(rt){o.st='renting';o.why=`Renting facturado en Holded: ${rt.n} (${fd(pd(rt.f))}, ${rt.c})`}
   else if(e.ina){o.st='otro';o.why='Marcado como no activo en ventas'}
@@ -394,8 +401,8 @@ function renderList(){
   else a=a.slice().sort((x,y)=>{const ex=x.end?x.end.getTime():0,ey=y.end?y.end.getTime():0;
     if(F.month||F.st==='garantia'||F.kpi==='soon')return ex-ey;return (y.d?y.d.getTime():0)-(x.d?x.d.getTime():0)});
   const N=400;const show=a.slice(0,N);
-  $('#tbl').innerHTML=`<table><thead><tr>${th('eq','serie','Nº serie')}${th('eq','cliente','Cliente (última posición)')}${th('eq','venta','Venta')}${th('eq','fin','Fin garantía')}${th('eq','estado','Estado')}${th('eq','cuota','Cuota','r')}${th('eq','fact','Últ. factura')}</tr></thead><tbody>${show.map((o,i)=>{const e=o.e;const warn=(o.ma&&o.end&&TODAY<=o.end)||(e.m&&(e.m.dup||(!e.m.owner_ok&&o.ma)));const li=e.m&&o.ma?lastInv(e.m.ci):null;
-    return `<tr data-i="${EV.indexOf(o)}"><td class="mono">${esc(e.s)}${e.t==='H'?' <span class="note">(pieza)</span>':''}</td><td class="cl" title="${esc(e.c)} · ${esc(e.dv||'')}">${esc(e.c||'—')}</td><td>${fd(o.d)}</td><td>${o.end&&o.st!=='renting'?fd(o.end):'—'}</td><td><span class="pill ${ST[o.st].p}">${ST[o.st].l}</span>${warn?'<span class="warn" title="Revisar">!</span>':''}</td><td class="r">${e.m&&o.ma&&e.m.precio?mtBadge(mtOf(e.c))+' '+eur2(e.m.precio+(e.m.hpx||0)):''}</td><td>${e.m?invCell(lastInv(e.m.ci),true):''}</td></tr>`}).join('')}</tbody></table>${a.length>N?`<div class="more">Mostrando ${N} de ${nf.format(a.length)}. Busca o filtra para acotar.</div>`:''}${!a.length?'<div class="more">Ningún equipo con este filtro.</div>':''}`;
+  $('#tbl').innerHTML=`<table><thead><tr>${th('eq','serie','Nº serie')}${th('eq','cliente','Cliente (última posición)')}${th('eq','venta','Venta')}${th('eq','fin','Fin garantía')}${th('eq','estado','Estado')}${th('eq','cuota','Cuota','r')}${th('eq','full','Todo cubierto hasta')}${th('eq','fact','Últ. factura')}</tr></thead><tbody>${show.map((o,i)=>{const e=o.e;const warn=(o.ma&&o.end&&TODAY<=o.end)||(e.m&&(e.m.dup||(!e.m.owner_ok&&o.ma)));const li=e.m&&o.ma?lastInv(e.m.ci):null;
+    return `<tr data-i="${EV.indexOf(o)}"><td class="mono">${esc(e.s)}${e.t==='H'?' <span class="note">(pieza)</span>':''}</td><td class="cl" title="${esc(e.c)} · ${esc(e.dv||'')}">${esc(e.c||'—')}</td><td>${fd(o.d)}</td><td>${o.end&&o.st!=='renting'?fd(o.end):'—'}</td><td><span class="pill ${ST[o.st].p}">${ST[o.st].l}</span>${warn?'<span class="warn" title="Revisar">!</span>':''}</td><td class="r">${e.m&&o.ma&&e.m.precio?mtBadge(mtOf(e.c))+' '+eur2(e.m.precio+(e.m.hpx||0)):''}</td><td>${fullCell(o)}</td><td>${e.m?invCell(lastInv(e.m.ci),true):''}</td></tr>`}).join('')}</tbody></table>${a.length>N?`<div class="more">Mostrando ${N} de ${nf.format(a.length)}. Busca o filtra para acotar.</div>`:''}${!a.length?'<div class="more">Ningún equipo con este filtro.</div>':''}`;
   $('#tbl').querySelectorAll('tbody tr').forEach(tr=>tr.onclick=()=>eqModal(EV[+tr.dataset.i]));
   wireSort($('#tbl'),'eq',renderList);
 }
@@ -432,6 +439,7 @@ function eqModal(o){
     h+=`<div class="sec"><h4>Mantenimiento en Holded</h4><div class="steps">
      <span class="k">Cliente facturado</span><span>${esc(D.cust[m.ci])}${m.owner_ok?'':' <span class="warn">! no es el último dueño en ventas</span>'}</span>
      <span class="k">Cuota</span><span>${m.precio!=null?eur2(m.precio)+'/mes':'—'}${m.hpx?' + '+eur2(m.hpx)+' pieza de mano':''} ${m.modelo?'· '+esc(m.modelo):''}</span>
+     ${o.fRule?`<span class="k">Todo cubierto</span><span>${o.fOn?'<b style="color:var(--man)">Sí, hasta el '+fd(o.fEnd)+'</b>':o.fStart&&TODAY<o.fStart?'Empieza el '+fd(o.fStart)+', hasta el '+fd(o.fEnd):'Terminó el '+fd(o.fEnd)} <span class="note">(${o.fRule.m} meses desde ${fd(o.fStart)}: ${esc(o.fSrc)}; regla «${esc(o.fRule.p)}»)</span></span>`:''}
      <span class="k">Tipo de contrato</span><span>${mtOf(e.c)?mtBadge(mtOf(e.c))+' '+esc(mtName(mtOf(e.c)))+(RULES.mt[mtOf(e.c)].d?'<br><span class="note">'+esc(RULES.mt[mtOf(e.c)].d)+'</span>':''):'<span class="note">sin asignar (pestaña Tipos de mantenimiento)</span>'}</span>
      <span class="k">Contrato desde</span><span>${esc(m.contrato||'no figura en la factura')}</span>
      <span class="k">Última factura</span><span>${esc(li.num)} · ${fd(pd(li.fecha))} · ${eur2(li.base)} base del cliente · ${esc(li.estado)}</span>
@@ -566,6 +574,7 @@ function accData(){
   EV.forEach(o=>{if(o.e.ina||o.st==='otro')return;const c=o.e.c||'(sin cliente)';const a=m[c]||(m[c]={c,n:0,n5:0,garantia:0,mant:0,sincob:0,renting:0,rsinf:0,soon:0,cuota:0,last:null});
     a.n++;if(o.d&&o.d>=since)a.n5++;a[o.st]++;
     if(o.st==='garantia'&&!o.ma&&o.end<=addM(TODAY,3))a.soon++;
+    if(o.fOn)a.full=(a.full||0)+1;
     if(o.ma&&o.e.m&&o.e.m.precio)a.cuota+=o.e.m.precio+(o.e.m.hpx||0);
     if(o.e.m){const li=lastInv(o.e.m.ci);if(li&&(!a.li||li.fecha>a.li.fecha))a.li=li}
     if(o.d&&(!a.last||o.d>a.last))a.last=o.d});
@@ -589,15 +598,15 @@ function renderAcc(){
     // una serie de un cliente que no está entre las grandes cuentas: se añade igual
     Object.keys(HIT).forEach(c=>{if(!rows.find(a=>a.c===c)){const x=accOne(c);if(x){rows.push(x);all.push(x)}}});
   }
-  rows=sortArr(rows,SORT.acc,{cuenta:a=>a.c,equipos:a=>a.n,garantia:a=>a.garantia,mant:a=>a.mant,sincob:a=>a.sincob,soon:a=>a.soon,cuota:a=>a.cuota||null,tipo:a=>a.cuota?(mtOf(a.c)||'Z'):null,fact:a=>a.li?a.li.fecha:null,meses:a=>DRAFT[a.c]!=null?DRAFT[a.c]:monthsFor(a.c),plazo:a=>({def:0,reg:1,man:2})[origin(a.c).k],last:a=>a.last?a.last.getTime():null});
+  rows=sortArr(rows,SORT.acc,{cuenta:a=>a.c,equipos:a=>a.n,garantia:a=>a.garantia,mant:a=>a.mant,sincob:a=>a.sincob,soon:a=>a.soon,cuota:a=>a.cuota||null,tipo:a=>a.cuota?(mtOf(a.c)||'Z'):null,full:a=>a.full||0,fact:a=>a.li?a.li.fecha:null,meses:a=>DRAFT[a.c]!=null?DRAFT[a.c]:monthsFor(a.c),plazo:a=>({def:0,reg:1,man:2})[origin(a.c).k],last:a=>a.last?a.last.getTime():null});
   const tot=all.reduce((s,a)=>({n:s.n+a.n5,g:s.g+a.garantia,m:s.m+a.mant,sc:s.sc+a.sincob,cu:s.cu+a.cuota}),{n:0,g:0,m:0,sc:0,cu:0});
   $('#accSum').innerHTML=`<span><b>${all.length}</b> cuentas</span><span><b>${nf.format(tot.g)}</b> en garantía</span><span><b>${nf.format(tot.m)}</b> con mantenimiento</span><span><b>${nf.format(tot.sc)}</b> sin cobertura</span><span><b>${eur(tot.cu)}</b>/mes en cuotas</span>${['A','B','C','D'].map(k=>{const n=all.filter(a=>a.cuota&&mtOf(a.c)===k).length;return n?`<span>${mtBadge(k)} <b>${n}</b></span>`:''}).join('')}`;
   const mx=Math.max(1,...all.map(a=>a.n));const z=v=>v?nf.format(v):'<span class="num0">0</span>';
-  $('#accT').innerHTML=`<table><thead><tr>${th('acc','cuenta','Cuenta')}${th('acc','equipos','Equipos','r')}<th>Cobertura</th>${th('acc','garantia','Garantía','r')}${th('acc','mant','Mant.','r')}${th('acc','sincob','Sin cob.','r')}${th('acc','soon','Salen 90 d','r')}${th('acc','tipo','Mantenimiento')}${th('acc','cuota','Cuota/mes','r')}${th('acc','fact','Última factura mant.')}${th('acc','meses','Meses gar.','r')}${th('acc','plazo','Plazo')}</tr></thead><tbody>${rows.map(a=>{const i=all.indexOf(a);const o=origin(a.c);const cur=DRAFT[a.c]!=null?DRAFT[a.c]:monthsFor(a.c);const act=a.garantia+a.mant+a.sincob+a.renting;
+  $('#accT').innerHTML=`<table><thead><tr>${th('acc','cuenta','Cuenta')}${th('acc','equipos','Equipos','r')}<th>Cobertura</th>${th('acc','garantia','Garantía','r')}${th('acc','mant','Mant.','r')}${th('acc','sincob','Sin cob.','r')}${th('acc','soon','Salen 90 d','r')}${th('acc','tipo','Mantenimiento')}${th('acc','full','Todo cubierto','r')}${th('acc','cuota','Cuota/mes','r')}${th('acc','fact','Última factura mant.')}${th('acc','meses','Meses gar.','r')}${th('acc','plazo','Plazo')}</tr></thead><tbody>${rows.map(a=>{const i=all.indexOf(a);const o=origin(a.c);const cur=DRAFT[a.c]!=null?DRAFT[a.c]:monthsFor(a.c);const act=a.garantia+a.mant+a.sincob+a.renting;
     return `<tr class="${DRAFT[a.c]!=null?'dirty':''}" title="Ver todos los equipos de ${esc(a.c)}"><td><button class="nmb" type="button" data-go="${i}" title="Ver todos sus equipos">${esc(a.c)}</button><span class="note">${HIT[a.c]?'<b style="color:var(--acc)">Serie: '+HIT[a.c].slice(0,4).map(esc).join(', ')+(HIT[a.c].length>4?'…':'')+'</b> · ':''}${a.n5} en 5 años${a.last?' · últ. venta '+fd(a.last):''}</span></td>
     <td class="r">${nf.format(a.n)}</td>
     <td style="min-width:70px"><span class="bar" style="width:${Math.max(12,a.n/mx*100)}%">${['garantia','mant','sincob','renting'].map(s=>a[s]?`<i style="width:${a[s]/act*100}%;background:${ST[s].c}"></i>`:'').join('')}</span></td>
-    <td class="r">${z(a.garantia)}</td><td class="r">${z(a.mant)}</td><td class="r">${z(a.sincob)}</td><td class="r">${a.soon?`<button class="lnk" type="button" data-av="${i}" title="Preparar aviso al cliente">${a.soon}</button>`:z(0)}</td><td>${a.cuota?`<select class="mtsel" data-am="${i}" aria-label="Tipo de mantenimiento de ${esc(a.c)}" style="${mtOf(a.c)?'border-color:'+MTC[mtOf(a.c)]+';color:'+MTC[mtOf(a.c)]:'color:var(--mut)'}"><option value="">Sin tipo</option>${['A','B','C','D'].map(x=>`<option value="${x}"${mtOf(a.c)===x?' selected':''}>${esc(mtName(x))}</option>`).join('')}</select>`:'<span class="num0">Sin contrato</span>'}</td><td class="r">${a.cuota?eur2(a.cuota):z(0)}</td><td>${invCell(a.li)}</td>
+    <td class="r">${z(a.garantia)}</td><td class="r">${z(a.mant)}</td><td class="r">${z(a.sincob)}</td><td class="r">${a.soon?`<button class="lnk" type="button" data-av="${i}" title="Preparar aviso al cliente">${a.soon}</button>`:z(0)}</td><td>${a.cuota?`<select class="mtsel" data-am="${i}" aria-label="Tipo de mantenimiento de ${esc(a.c)}" style="${mtOf(a.c)?'border-color:'+MTC[mtOf(a.c)]+';color:'+MTC[mtOf(a.c)]:'color:var(--mut)'}"><option value="">Sin tipo</option>${['A','B','C','D'].map(x=>`<option value="${x}"${mtOf(a.c)===x?' selected':''}>${esc(mtName(x))}</option>`).join('')}</select>`:'<span class="num0">Sin contrato</span>'}</td><td class="r" title="Equipos dentro de los meses con todas las reparaciones cubiertas">${a.full?'<b style="color:var(--man)">'+a.full+'</b>':z(0)}</td><td class="r">${a.cuota?eur2(a.cuota):z(0)}</td><td>${invCell(a.li)}</td>
     <td class="r"><input class="minp" id="am${i}" type="number" min="0" max="120" value="${cur}" data-c="${i}" aria-label="Meses de garantía de ${esc(a.c)}"></td>
     <td>${o.k==='def'?`<button class="org o-def" type="button" data-ok="${i}" title="Dar por bueno el plazo actual">Confirmar</button>`:`<span class="org o-${o.k}" title="${esc(o.d)}">${esc(o.t)}</span>`}</td></tr>`}).join('')}</tbody></table>${!rows.length?'<div class="more">Ninguna cuenta con este filtro.</div>':''}`;
   const byI=i=>all[+i].c;
@@ -630,9 +639,9 @@ function custModal(c,keepF,hl){
   </div>
   ${lis.length?`<div class="src">Última factura de mantenimiento: ${lis.map(li=>invCell(li)+' <span class="note">'+esc(li.cliente)+' · base '+eur2(li.base)+'</span>').join('<br>')}</div>`:''}
   <div class="sec"><div class="stc">${['all',...Object.keys(ST)].filter(s=>s==='all'||cnt[s]).map(s=>`<button class="chip${CF===s?' on':''}" type="button" data-cf="${s}">${s!=='all'?`<i class="dot" style="background:${ST[s].c}"></i>${ST[s].l}`:'Todos'} <b>${cnt[s]}</b></button>`).join('')}</div>
-  <div class="mt" style="max-height:52vh"><table><thead><tr>${th('cm','serie','Nº serie')}${th('cm','pieza','Pieza de mano')}${th('cm','equipo','Equipo')}${th('cm','venta','Venta')}${th('cm','fin','Fin garantía')}${th('cm','estado','Estado')}${th('cm','cuota','Cuota','r')}${th('cm','fact','Últ. factura')}</tr></thead><tbody>${rows.map(o=>{const e=o.e;const warn=(o.ma&&o.end&&TODAY<=o.end)||(e.m&&(e.m.dup||(!e.m.owner_ok&&o.ma)))||(o.d&&o.d>TODAY);
-    return `<tr data-i="${EV.indexOf(o)}"${hl&&(e.s===hl||e.hp===hl)?' class="dirty" id="hlrow"':''}><td class="mono">${esc(e.s)}${e.t==='H'?' <span class="note">(pieza)</span>':''}</td><td class="mono">${esc(e.t==='C'?(e.hp||'—'):'—')}</td><td title="${esc(e.tos||'')}">${esc(e.dv||'—')}</td><td>${fd(o.d)}</td><td>${o.end&&o.st!=='renting'?fd(o.end):'—'}</td><td><span class="pill ${ST[o.st].p}">${ST[o.st].l}</span>${warn?'<span class="warn" title="Revisar">!</span>':''}</td><td class="r">${e.m&&o.ma&&e.m.precio?eur2(e.m.precio+(e.m.hpx||0)):''}</td><td>${e.m?invCell(lastInv(e.m.ci),true):''}</td></tr>`}).join('')}</tbody></table></div>
-  <div class="src">Última posición de cada serie en ${esc(D.src.ventas)} (hoja «${esc(D.src.hoja)}»); cuotas y facturas de Holded. Pincha un equipo para ver el cálculo.</div></div>
+  <div class="mt" style="max-height:52vh"><table><thead><tr>${th('cm','serie','Nº serie')}${th('cm','pieza','Pieza de mano')}${th('cm','equipo','Equipo')}${th('cm','venta','Venta')}${th('cm','fin','Fin garantía')}${th('cm','estado','Estado')}${th('cm','cuota','Cuota','r')}${fullFor(c)?th('cm','full','Todo cubierto hasta'):''}${th('cm','fact','Últ. factura')}</tr></thead><tbody>${rows.map(o=>{const e=o.e;const warn=(o.ma&&o.end&&TODAY<=o.end)||(e.m&&(e.m.dup||(!e.m.owner_ok&&o.ma)))||(o.d&&o.d>TODAY);
+    return `<tr data-i="${EV.indexOf(o)}"${hl&&(e.s===hl||e.hp===hl)?' class="dirty" id="hlrow"':''}><td class="mono">${esc(e.s)}${e.t==='H'?' <span class="note">(pieza)</span>':''}</td><td class="mono">${esc(e.t==='C'?(e.hp||'—'):'—')}</td><td class="cl" style="max-width:130px" title="${esc((e.dv||'')+' · '+(e.tos||''))}">${esc(e.dv||'—')}</td><td>${fd(o.d)}</td><td>${o.end&&o.st!=='renting'?fd(o.end):'—'}</td><td><span class="pill ${ST[o.st].p}">${ST[o.st].l}</span>${warn?'<span class="warn" title="Revisar">!</span>':''}</td><td class="r">${e.m&&o.ma&&e.m.precio?eur2(e.m.precio+(e.m.hpx||0)):''}</td>${fullFor(c)?`<td>${fullCell(o)}</td>`:''}<td>${e.m?invCell(lastInv(e.m.ci),true):''}</td></tr>`}).join('')}</tbody></table></div>
+  <div class="src">Última posición de cada serie: ${esc(D.src.agg)} desde 2024 y ${esc(D.src.ventas)} para lo anterior; cuotas, rentings y facturas de Holded. Pincha un equipo para ver el cálculo.</div></div>
   <div class="row2"><button class="btn" type="button" id="toPanel">Ver en el panel Parque</button><button class="btn alt" type="button" id="toAviso">Preparar aviso de fin de garantía</button></div>`;
   openM(c,h,true);
   const hr=document.getElementById('hlrow');if(hr)hr.scrollIntoView({block:'center'});
@@ -645,10 +654,10 @@ function custModal(c,keepF,hl){
 function applyDraft(){const man=Object.assign({},RULES.manual||{},DRAFT);RULES.manual=man;setTimeout(render,0)}
 $('#aq').addEventListener('input',renderAcc);
 const RKEY='lt-garantias-reglas';
-async function saveRules(){const body={def:RULES.def,rules:RULES.rules,manual:RULES.manual||{},gone:RULES.gone||[],mt:RULES.mt||DEFAULT_MT,mtc:RULES.mtc||{},updatedAt:new Date().toISOString()};
+async function saveRules(){const body={def:RULES.def,rules:RULES.rules,manual:RULES.manual||{},gone:RULES.gone||[],full:RULES.full||[],mt:RULES.mt||DEFAULT_MT,mtc:RULES.mtc||{},updatedAt:new Date().toISOString()};
   if(db){await db.doc('config/garantias').set(body);RULES_SRC='guardadas en el panel '+new Date().toLocaleString('es-ES');return}
   localStorage.setItem(RKEY,JSON.stringify(body));RULES_SRC='guardadas en este navegador '+new Date().toLocaleString('es-ES')}
-function loadRulesObj(d){if(!d||!Array.isArray(d.rules))return false;RULES={def:(d.def===0||d.def)?+d.def:12,rules:d.rules.map(r=>({p:String(r.p||''),m:+r.m||0})),manual:Object.fromEntries(Object.entries(d.manual||{}).map(([k,v])=>[k,+v||0])),gone:Array.isArray(d.gone)?d.gone.map(String):DEFAULT_RULES.gone.slice(),mt:Object.assign(JSON.parse(JSON.stringify(DEFAULT_MT)),d.mt||{}),mtc:Object.assign({},d.mtc||{})};return true}
+function loadRulesObj(d){if(!d||!Array.isArray(d.rules))return false;RULES={def:(d.def===0||d.def)?+d.def:12,rules:d.rules.map(r=>({p:String(r.p||''),m:+r.m||0})),manual:Object.fromEntries(Object.entries(d.manual||{}).map(([k,v])=>[k,+v||0])),gone:Array.isArray(d.gone)?d.gone.map(String):DEFAULT_RULES.gone.slice(),full:Array.isArray(d.full)?d.full.map(r=>({p:String(r.p||''),m:+r.m||0})):DEFAULT_RULES.full.map(r=>({...r})),mt:Object.assign(JSON.parse(JSON.stringify(DEFAULT_MT)),d.mt||{}),mtc:Object.assign({},d.mtc||{})};return true}
 try{const s=localStorage.getItem(RKEY);if(s&&loadRulesObj(JSON.parse(s)))RULES_SRC='guardadas en este navegador'}catch(e){}
 $('#aSave').onclick=async()=>{const n=Object.keys(DRAFT).length;RULES.manual=Object.assign({},RULES.manual||{},DRAFT);
   try{await saveRules();DRAFT={};MTDIRTY=false;$('#aMsg').textContent='Guardado. Todo el panel se ha recalculado.'}catch(err){$('#aMsg').textContent='No se ha podido guardar ('+(err&&err.code||'error')+'). Los meses se aplican solo en esta sesión.'}
@@ -667,6 +676,9 @@ $('#bRules').onclick=()=>{RDRAFT={};RQ='';RF='all';
     openM('Reglas de garantía',`<div class="steps" style="grid-template-columns:1fr auto;align-items:center">
         <span><b>Plazo para los clientes que no se saben</b><br><span class="note">Se aplica a todo cliente sin plazo manual ni regla</span></span><span><input class="minp" id="rdef" type="number" min="0" max="120" value="${r.def}" aria-label="Meses por defecto"> meses</span></div>
       <div class="sec"><h4>Clientes que ya no existen</h4><div class="note" style="margin-bottom:6px">Sus equipos salen del parque activo salvo que tengan factura de renting o mantenimiento. Separa con comas.</div><input class="search" id="rgone" style="width:100%" value="${esc((r.gone||[]).join(', '))}" aria-label="Clientes que ya no existen"></div>
+      <div class="sec"><h4>Todo cubierto al entrar en mantenimiento</h4><div class="note" style="margin-bottom:6px">Meses con todas las reparaciones cubiertas desde que el equipo entra en mantenimiento (fecha de contrato de la factura o, si no la trae, fin de garantía).</div>
+      <div class="rules" id="rfull">${(r.full||[]).map((x,i)=>`<span data-fr style="display:contents"><input class="fp" value="${esc(x.p)}" aria-label="Texto del cliente"><input class="fm" type="number" min="0" max="60" value="${x.m}" aria-label="Meses"><button class="del" type="button" data-fd="${i}" aria-label="Quitar">×</button></span>`).join('')}</div>
+      <div class="row2" style="justify-content:flex-start;margin-top:8px"><button class="btn" type="button" id="fadd">+ Añadir cliente</button></div></div>
       <div class="sec"><h4>Reglas por nombre</h4><div class="note" style="margin-bottom:6px">Si el texto aparece en el nombre del cliente, se aplica ese plazo (salvo que el cliente tenga plazo manual).</div>
       <div class="rules" id="rl">${r.rules.map((x,i)=>`<input id="rp${i}" value="${esc(x.p)}" aria-label="Texto del cliente"><input id="rm${i}" type="number" min="0" max="120" value="${x.m}" aria-label="Meses"><button class="del" type="button" data-d="${i}" aria-label="Quitar">×</button>`).join('')}</div>
       <div class="row2" style="justify-content:flex-start;margin-top:8px"><button class="btn" type="button" id="radd">+ Añadir regla</button></div></div>
@@ -676,16 +688,18 @@ $('#bRules').onclick=()=>{RDRAFT={};RQ='';RF='all';
         return `<tr class="${RDRAFT[a.c]!=null?'dirty':''}" style="cursor:default"><td class="cl" style="max-width:340px" title="${esc(a.c)}">${esc(a.c)}</td><td class="r">${a.n}</td><td>${fd(a.last)}</td><td class="r"><input class="minp" id="rc${i}" data-ci="${i}" type="number" min="0" max="120" value="${v}" aria-label="Meses de ${esc(a.c)}"></td><td>${o.k==='def'?`<button class="org o-def" type="button" data-rok="${i}">Confirmar</button>`:`<span class="org o-${o.k}" title="${esc(o.d||'')}">${esc(o.t)}</span>`}</td></tr>`}).join('')}</tbody></table></div></div>
       <div class="row2"><button class="btn" type="button" id="rreset">Volver a Sin Vello 12 · Elha 24 · Epil Point 36</button><button class="btn alt" type="button" id="rsave">Guardar y recalcular${Object.keys(RDRAFT).length?' ('+Object.keys(RDRAFT).length+')':''}</button></div>
       <div class="src" id="rmsg">${db?'Se guardan en el panel.':'Se guardan en este navegador.'} Ahora: ${esc(RULES_SRC)}.</div>`,true);
-    const read=()=>{const n=RULES.rules.length;const rs=[];for(let i=0;i<n;i++){const p=$('#rp'+i).value.trim();const m=parseInt($('#rm'+i).value,10);if(p&&m>=0)rs.push({p,m})}return {def:Math.max(0,parseInt($('#rdef').value,10)||0),rules:rs,manual:RULES.manual||{},mt:RULES.mt,mtc:RULES.mtc,gone:$('#rgone').value.split(',').map(x=>x.trim()).filter(Boolean)}};
+    const read=()=>{const n=RULES.rules.length;const rs=[];for(let i=0;i<n;i++){const p=$('#rp'+i).value.trim();const m=parseInt($('#rm'+i).value,10);if(p&&m>=0)rs.push({p,m})}return {def:Math.max(0,parseInt($('#rdef').value,10)||0),rules:rs,manual:RULES.manual||{},mt:RULES.mt,mtc:RULES.mtc,full:readFull(),gone:$('#rgone').value.split(',').map(x=>x.trim()).filter(Boolean)}};
     const redraw=()=>{RULES=read();draw()};
     $('#mdB').querySelectorAll('[data-d]').forEach(b=>b.onclick=()=>{RULES=read();RULES.rules.splice(+b.dataset.d,1);draw()});
+    $('#fadd').onclick=()=>{RULES=read();RULES.full.push({p:'',m:6});draw()};
+    $('#mdB').querySelectorAll('[data-fd]').forEach(b=>b.onclick=()=>{RULES=read();RULES.full.splice(+b.dataset.fd,1);draw()});
     $('#radd').onclick=()=>{RULES=read();RULES.rules.push({p:'',m:RULES.def});draw();const i=RULES.rules.length-1;$('#rp'+i).focus()};
     $('#mdB').querySelectorAll('[data-rf]').forEach(b=>b.onclick=()=>{RF=b.dataset.rf;redraw()});
     wireSort($('#mdB'),'rl',redraw);
     $('#rq').addEventListener('input',e=>{RQ=e.target.value;RULES=read();draw();const q=$('#rq');q.focus();q.setSelectionRange(q.value.length,q.value.length)});
     $('#mdB').querySelectorAll('[data-ci]').forEach(inp=>inp.onchange=()=>{const v=parseInt(inp.value,10);if(isNaN(v)||v<0)return;RDRAFT[all[+inp.dataset.ci].c]=v;inp.closest('tr').classList.add('dirty');$('#rsave').textContent='Guardar y recalcular ('+Object.keys(RDRAFT).length+')'});
     $('#mdB').querySelectorAll('[data-rok]').forEach(b=>b.onclick=()=>{const c=all[+b.dataset.rok].c;RDRAFT[c]=monthsFor(c);setTimeout(redraw,0)});
-    $('#rreset').onclick=()=>{const man=RULES.manual,go=RULES.gone;const mt=RULES.mt,mtc=RULES.mtc;RULES=JSON.parse(JSON.stringify(DEFAULT_RULES));RULES.manual=man||{};RULES.gone=go||DEFAULT_RULES.gone;RULES.mt=mt;RULES.mtc=mtc;draw()};
+    $('#rreset').onclick=()=>{const man=RULES.manual,go=RULES.gone;const mt=RULES.mt,mtc=RULES.mtc;RULES=JSON.parse(JSON.stringify(DEFAULT_RULES));RULES.manual=man||{};RULES.gone=go||DEFAULT_RULES.gone;RULES.mt=mt;RULES.mtc=mtc;RULES.full=readFull();draw()};
     $('#rsave').onclick=async()=>{RULES=read();RULES.manual=Object.assign({},RULES.manual||{},RDRAFT);const n=Object.keys(RDRAFT).length;RDRAFT={};render();
       try{await saveRules();draw();$('#rmsg').textContent='Guardado'+(n?' ('+n+' cliente'+(n>1?'s':'')+' con plazo manual)':'')+'. Todo el panel se ha recalculado.'}catch(err){draw();$('#rmsg').textContent='No se ha podido guardar ('+(err&&err.code||'error')+'). Se aplica solo en esta sesión.'}};
   };draw()};
