@@ -45,7 +45,7 @@ h1{font-size:19px;font-weight:800;letter-spacing:-.01em;margin:0;text-wrap:balan
 .kpi .v{font-size:30px;font-weight:800;letter-spacing:-.02em;line-height:1;font-variant-numeric:tabular-nums}
 .kpi .sub{grid-column:1/-1;font-size:11.5px;color:var(--mut);font-variant-numeric:tabular-nums}
 .kpi svg{display:block}
-.main{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1.35fr);gap:12px;min-height:0}
+.main{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.5fr);gap:12px;min-height:0}
 .left{display:grid;grid-template-rows:minmax(0,1.25fr) minmax(0,1fr);gap:12px;min-height:0}
 .ct{display:flex;flex-direction:column;min-height:0}
 .ct h2{font-size:13.5px;font-weight:700;margin:0 0 2px}
@@ -402,8 +402,8 @@ function renderList(){
   else a=a.slice().sort((x,y)=>{const ex=x.end?x.end.getTime():0,ey=y.end?y.end.getTime():0;
     if(F.month||F.st==='garantia'||F.kpi==='soon')return ex-ey;return (y.d?y.d.getTime():0)-(x.d?x.d.getTime():0)});
   const N=400;const show=a.slice(0,N);
-  $('#tbl').innerHTML=`<table><thead><tr>${th('eq','serie','Nº serie')}${th('eq','cliente','Cliente')}${th('eq','venta','Venta')}${th('eq','fin','Fin garantía')}${th('eq','estado','Estado')}${th('eq','tipo','Mantenimiento')}${th('eq','cuota','Cuota','r')}${th('eq','full','Todo cubierto hasta')}${th('eq','fact','Últ. factura')}</tr></thead><tbody>${show.map((o,i)=>{const e=o.e;const warn=(o.ma&&o.end&&TODAY<=o.end)||(e.m&&(e.m.dup||(!e.m.owner_ok&&o.ma)));const li=e.m&&o.ma?lastInv(e.m.ci):null;
-    return `<tr data-i="${EV.indexOf(o)}"><td class="mono">${esc(e.s)}${e.t==='H'?' <span class="note">(pieza)</span>':''}</td><td class="cl" title="${esc(e.c)} · ${esc(e.dv||'')}">${esc(e.c||'—')}</td><td>${fd(o.d)}</td><td>${o.end&&o.st!=='renting'?fd(o.end):'—'}</td><td><span class="pill ${ST[o.st].p}">${ST[o.st].l}</span>${warn?'<span class="warn" title="Revisar">!</span>':''}</td><td>${mtCell(o)}</td><td class="r">${e.m&&o.ma&&e.m.precio?eur2(e.m.precio+(e.m.hpx||0)):''}</td><td>${fullCell(o)}</td><td>${e.m?invCell(lastInv(e.m.ci),true):''}</td></tr>`}).join('')}</tbody></table>${a.length>N?`<div class="more">Mostrando ${N} de ${nf.format(a.length)}. Busca o filtra para acotar.</div>`:''}${!a.length?'<div class="more">Ningún equipo con este filtro.</div>':''}`;
+  $('#tbl').innerHTML=`<table><thead><tr>${th('eq','serie','Nº serie')}${th('eq','cliente','Cliente')}${th('eq','fin','Fin garantía')}${th('eq','estado','Estado')}${th('eq','tipo','Mantenimiento')}${th('eq','full','Todo cubierto hasta')}${th('eq','fact','Últ. factura')}</tr></thead><tbody>${show.map((o,i)=>{const e=o.e;const warn=(o.ma&&o.end&&TODAY<=o.end)||(e.m&&(e.m.dup||(!e.m.owner_ok&&o.ma)));
+    return `<tr data-i="${EV.indexOf(o)}"><td class="mono">${esc(e.s)}${e.t==='H'?' <span class="note">(pieza)</span>':''}</td><td class="cl" style="max-width:170px" title="${esc(e.c)} · ${esc(e.dv||'')}">${esc(e.c||'—')}</td><td>${o.end&&o.st!=='renting'?fd(o.end):'—'}<br><span class="note">venta ${fd(o.d)}</span></td><td><span class="pill ${ST[o.st].p}">${ST[o.st].l}</span>${warn?'<span class="warn" title="Revisar">!</span>':''}</td><td>${mtCell(o)}${e.m&&o.ma&&e.m.precio?'<br><span class="note">'+eur2(e.m.precio+(e.m.hpx||0))+'/mes</span>':''}</td><td>${fullCell(o)}</td><td>${e.m?invCell(lastInv(e.m.ci),true):''}</td></tr>`}).join('')}</tbody></table>${a.length>N?`<div class="more">Mostrando ${N} de ${nf.format(a.length)}. Busca o filtra para acotar.</div>`:''}${!a.length?'<div class="more">Ningún equipo con este filtro.</div>':''}`;
   $('#tbl').querySelectorAll('tbody tr').forEach(tr=>tr.onclick=()=>eqModal(EV[+tr.dataset.i]));
   wireSort($('#tbl'),'eq',renderList);
 }
