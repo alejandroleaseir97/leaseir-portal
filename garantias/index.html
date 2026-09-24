@@ -112,7 +112,7 @@ td.cl{max-width:180px;overflow:hidden;text-overflow:ellipsis}
 .acc{display:flex;flex-direction:column;min-height:0}
 .acc table td{vertical-align:middle}
 .acc .bar{height:12px;min-width:40px}
-.acc .nmb{border:0;background:none;padding:0;font:inherit;font-weight:700;color:var(--ink);cursor:pointer;text-align:left;max-width:210px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block}
+.acc .nmb{border:0;background:none;padding:0;font:inherit;font-weight:700;color:var(--ink);cursor:pointer;text-align:left;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block}
 .acc .nmb:hover{text-decoration:underline}
 .acc tbody tr{cursor:pointer}
 .acc tbody tr:hover td{background:var(--soft)}
@@ -197,7 +197,7 @@ th.sth.on .ar{opacity:1;color:var(--acc)}
       <input class="search" id="aq" type="search" placeholder="Cliente, consola o pieza de mano" autocomplete="off" style="max-width:260px;flex:none">
       <button class="btn alt" type="button" id="aSave" disabled>Guardar meses</button>
     </div>
-    <div class="note" id="aMsg" style="margin:-2px 0 8px">Escribe los meses de garantía de cada cuenta. Los naranjas llevan el plazo por defecto (12 meses) y están por confirmar; pulsa «Confirmar» si el plazo ya es el correcto.</div>
+    <div class="note" id="aMsg" style="margin:-2px 0 8px">Escribe los meses de garantía y elige el tipo de mantenimiento de cada cuenta. Los naranjas llevan el plazo por defecto (12 meses) y están por confirmar; pulsa «Confirmar» si el plazo ya es el correcto.</div>
     <div class="scroll" id="accT"></div>
   </section>
   <section class="main" id="mainV">
@@ -540,7 +540,7 @@ function avisoModal(c,back){
 }
 
 // ---- grandes cuentas
-let VIEW='parque';let DRAFT={};let AF='all';
+let MTDIRTY=false;let VIEW='parque';let DRAFT={};let AF='all';
 function setView(v){VIEW=v;$('#tP').classList.toggle('on',v==='parque');$('#tA').classList.toggle('on',v==='acc');$('#tM').classList.toggle('on',v==='mt');$('#mainV').hidden=v!=='parque';$('#kpis').hidden=v!=='parque';$('#accV').hidden=v!=='acc';$('#mtV').hidden=v!=='mt';if(v==='acc')renderAcc();if(v==='mt')renderMT()}
 $('#tP').onclick=()=>setView('parque');$('#tA').onclick=()=>setView('acc');$('#tM').onclick=()=>setView('mt');
 // ---- tipos de mantenimiento
@@ -560,7 +560,7 @@ function renderMT(){
   $('#mtCust').querySelectorAll('[data-mc]').forEach(b=>b.onclick=()=>custModal(all[+b.dataset.mc].c));
   wireSort($('#mtCust'),'mt',renderMT);
 }
-$('#mtSave').onclick=async()=>{try{await saveRules();$('#mtMsg').textContent='Guardado · '+new Date().toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'})}catch(err){$('#mtMsg').textContent='No se ha podido guardar ('+(err&&err.code||'error')+')'}};
+$('#mtSave').onclick=async()=>{try{await saveRules();MTDIRTY=false;$('#mtMsg').textContent='Guardado · '+new Date().toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'})}catch(err){$('#mtMsg').textContent='No se ha podido guardar ('+(err&&err.code||'error')+')'}};
 function accData(){
   const since=addM(TODAY,-60);const m={};
   EV.forEach(o=>{if(o.e.ina||o.st==='otro')return;const c=o.e.c||'(sin cliente)';const a=m[c]||(m[c]={c,n:0,n5:0,garantia:0,mant:0,sincob:0,renting:0,rsinf:0,soon:0,cuota:0,last:null});
@@ -589,25 +589,27 @@ function renderAcc(){
     // una serie de un cliente que no está entre las grandes cuentas: se añade igual
     Object.keys(HIT).forEach(c=>{if(!rows.find(a=>a.c===c)){const x=accOne(c);if(x){rows.push(x);all.push(x)}}});
   }
-  rows=sortArr(rows,SORT.acc,{cuenta:a=>a.c,equipos:a=>a.n,garantia:a=>a.garantia,mant:a=>a.mant,sincob:a=>a.sincob,soon:a=>a.soon,cuota:a=>a.cuota||null,fact:a=>a.li?a.li.fecha:null,meses:a=>DRAFT[a.c]!=null?DRAFT[a.c]:monthsFor(a.c),plazo:a=>({def:0,reg:1,man:2})[origin(a.c).k],last:a=>a.last?a.last.getTime():null});
+  rows=sortArr(rows,SORT.acc,{cuenta:a=>a.c,equipos:a=>a.n,garantia:a=>a.garantia,mant:a=>a.mant,sincob:a=>a.sincob,soon:a=>a.soon,cuota:a=>a.cuota||null,tipo:a=>a.cuota?(mtOf(a.c)||'Z'):null,fact:a=>a.li?a.li.fecha:null,meses:a=>DRAFT[a.c]!=null?DRAFT[a.c]:monthsFor(a.c),plazo:a=>({def:0,reg:1,man:2})[origin(a.c).k],last:a=>a.last?a.last.getTime():null});
   const tot=all.reduce((s,a)=>({n:s.n+a.n5,g:s.g+a.garantia,m:s.m+a.mant,sc:s.sc+a.sincob,cu:s.cu+a.cuota}),{n:0,g:0,m:0,sc:0,cu:0});
-  $('#accSum').innerHTML=`<span><b>${all.length}</b> cuentas</span><span><b>${nf.format(tot.g)}</b> en garantía</span><span><b>${nf.format(tot.m)}</b> con mantenimiento</span><span><b>${nf.format(tot.sc)}</b> sin cobertura</span><span><b>${eur(tot.cu)}</b>/mes en cuotas</span>`;
+  $('#accSum').innerHTML=`<span><b>${all.length}</b> cuentas</span><span><b>${nf.format(tot.g)}</b> en garantía</span><span><b>${nf.format(tot.m)}</b> con mantenimiento</span><span><b>${nf.format(tot.sc)}</b> sin cobertura</span><span><b>${eur(tot.cu)}</b>/mes en cuotas</span>${['A','B','C','D'].map(k=>{const n=all.filter(a=>a.cuota&&mtOf(a.c)===k).length;return n?`<span>${mtBadge(k)} <b>${n}</b></span>`:''}).join('')}`;
   const mx=Math.max(1,...all.map(a=>a.n));const z=v=>v?nf.format(v):'<span class="num0">0</span>';
-  $('#accT').innerHTML=`<table><thead><tr>${th('acc','cuenta','Cuenta')}${th('acc','equipos','Equipos','r')}<th>Cobertura</th>${th('acc','garantia','Garantía','r')}${th('acc','mant','Mant.','r')}${th('acc','sincob','Sin cob.','r')}${th('acc','soon','Salen 90 d','r')}${th('acc','cuota','Cuota/mes','r')}${th('acc','fact','Última factura mant.')}${th('acc','meses','Meses gar.','r')}${th('acc','plazo','Plazo')}</tr></thead><tbody>${rows.map(a=>{const i=all.indexOf(a);const o=origin(a.c);const cur=DRAFT[a.c]!=null?DRAFT[a.c]:monthsFor(a.c);const act=a.garantia+a.mant+a.sincob+a.renting;
+  $('#accT').innerHTML=`<table><thead><tr>${th('acc','cuenta','Cuenta')}${th('acc','equipos','Equipos','r')}<th>Cobertura</th>${th('acc','garantia','Garantía','r')}${th('acc','mant','Mant.','r')}${th('acc','sincob','Sin cob.','r')}${th('acc','soon','Salen 90 d','r')}${th('acc','tipo','Mantenimiento')}${th('acc','cuota','Cuota/mes','r')}${th('acc','fact','Última factura mant.')}${th('acc','meses','Meses gar.','r')}${th('acc','plazo','Plazo')}</tr></thead><tbody>${rows.map(a=>{const i=all.indexOf(a);const o=origin(a.c);const cur=DRAFT[a.c]!=null?DRAFT[a.c]:monthsFor(a.c);const act=a.garantia+a.mant+a.sincob+a.renting;
     return `<tr class="${DRAFT[a.c]!=null?'dirty':''}" title="Ver todos los equipos de ${esc(a.c)}"><td><button class="nmb" type="button" data-go="${i}" title="Ver todos sus equipos">${esc(a.c)}</button><span class="note">${HIT[a.c]?'<b style="color:var(--acc)">Serie: '+HIT[a.c].slice(0,4).map(esc).join(', ')+(HIT[a.c].length>4?'…':'')+'</b> · ':''}${a.n5} en 5 años${a.last?' · últ. venta '+fd(a.last):''}</span></td>
     <td class="r">${nf.format(a.n)}</td>
-    <td style="min-width:90px"><span class="bar" style="width:${Math.max(12,a.n/mx*100)}%">${['garantia','mant','sincob','renting'].map(s=>a[s]?`<i style="width:${a[s]/act*100}%;background:${ST[s].c}"></i>`:'').join('')}</span></td>
-    <td class="r">${z(a.garantia)}</td><td class="r">${z(a.mant)}</td><td class="r">${z(a.sincob)}</td><td class="r">${a.soon?`<button class="lnk" type="button" data-av="${i}" title="Preparar aviso al cliente">${a.soon}</button>`:z(0)}</td><td class="r">${a.cuota?mtBadge(mtOf(a.c))+' '+eur2(a.cuota):z(0)}</td><td>${invCell(a.li)}</td>
+    <td style="min-width:70px"><span class="bar" style="width:${Math.max(12,a.n/mx*100)}%">${['garantia','mant','sincob','renting'].map(s=>a[s]?`<i style="width:${a[s]/act*100}%;background:${ST[s].c}"></i>`:'').join('')}</span></td>
+    <td class="r">${z(a.garantia)}</td><td class="r">${z(a.mant)}</td><td class="r">${z(a.sincob)}</td><td class="r">${a.soon?`<button class="lnk" type="button" data-av="${i}" title="Preparar aviso al cliente">${a.soon}</button>`:z(0)}</td><td>${a.cuota?`<select class="mtsel" data-am="${i}" aria-label="Tipo de mantenimiento de ${esc(a.c)}" style="${mtOf(a.c)?'border-color:'+MTC[mtOf(a.c)]+';color:'+MTC[mtOf(a.c)]:'color:var(--mut)'}"><option value="">Sin tipo</option>${['A','B','C','D'].map(x=>`<option value="${x}"${mtOf(a.c)===x?' selected':''}>${esc(mtName(x))}</option>`).join('')}</select>`:'<span class="num0">Sin contrato</span>'}</td><td class="r">${a.cuota?eur2(a.cuota):z(0)}</td><td>${invCell(a.li)}</td>
     <td class="r"><input class="minp" id="am${i}" type="number" min="0" max="120" value="${cur}" data-c="${i}" aria-label="Meses de garantía de ${esc(a.c)}"></td>
     <td>${o.k==='def'?`<button class="org o-def" type="button" data-ok="${i}" title="Dar por bueno el plazo actual">Confirmar</button>`:`<span class="org o-${o.k}" title="${esc(o.d)}">${esc(o.t)}</span>`}</td></tr>`}).join('')}</tbody></table>${!rows.length?'<div class="more">Ninguna cuenta con este filtro.</div>':''}`;
   const byI=i=>all[+i].c;
   $('#accT').querySelectorAll('.minp').forEach(inp=>inp.onchange=()=>{const c=byI(inp.dataset.c);const v=parseInt(inp.value,10);if(isNaN(v)||v<0)return;DRAFT[c]=v;applyDraft()});
   $('#accT').querySelectorAll('[data-ok]').forEach(b=>b.onclick=()=>{const c=byI(b.dataset.ok);DRAFT[c]=monthsFor(c);applyDraft()});
-  $('#accT').querySelectorAll('tbody tr').forEach(tr=>tr.onclick=ev=>{if(ev.target.closest('input,.org,.lnk'))return;const b=tr.querySelector('[data-go]');const c=byI(b.dataset.go);custModal(c,false,HIT[c]&&HIT[c][0])});
+  $('#accT').querySelectorAll('tbody tr').forEach(tr=>tr.onclick=ev=>{if(ev.target.closest('input,select,.org,.lnk'))return;const b=tr.querySelector('[data-go]');const c=byI(b.dataset.go);custModal(c,false,HIT[c]&&HIT[c][0])});
   wireSort($('#accT'),'acc',renderAcc);
+  $('#accT').querySelectorAll('[data-am]').forEach(s=>{s.onclick=ev=>ev.stopPropagation();s.onchange=()=>{const c=all[+s.dataset.am].c;RULES.mtc=RULES.mtc||{};if(s.value)RULES.mtc[c]=s.value;else delete RULES.mtc[c];MTDIRTY=true;setTimeout(renderAcc,0)}});
   $('#accT').querySelectorAll('[data-av]').forEach(b=>b.onclick=ev=>{ev.stopPropagation();AV.dias=90;avisoModal(byI(b.dataset.av))});
-  $('#aSave').disabled=!Object.keys(DRAFT).length;
-  $('#aSave').textContent=Object.keys(DRAFT).length?`Guardar ${Object.keys(DRAFT).length} cambio${Object.keys(DRAFT).length>1?'s':''}`:'Guardar meses';
+  const nch=Object.keys(DRAFT).length+(MTDIRTY?1:0);
+  $('#aSave').disabled=!nch;
+  $('#aSave').textContent=nch?'Guardar cambios':'Guardar';
 }
 let CF='all';
 function custModal(c,keepF,hl){
@@ -649,7 +651,7 @@ async function saveRules(){const body={def:RULES.def,rules:RULES.rules,manual:RU
 function loadRulesObj(d){if(!d||!Array.isArray(d.rules))return false;RULES={def:(d.def===0||d.def)?+d.def:12,rules:d.rules.map(r=>({p:String(r.p||''),m:+r.m||0})),manual:Object.fromEntries(Object.entries(d.manual||{}).map(([k,v])=>[k,+v||0])),gone:Array.isArray(d.gone)?d.gone.map(String):DEFAULT_RULES.gone.slice(),mt:Object.assign(JSON.parse(JSON.stringify(DEFAULT_MT)),d.mt||{}),mtc:Object.assign({},d.mtc||{})};return true}
 try{const s=localStorage.getItem(RKEY);if(s&&loadRulesObj(JSON.parse(s)))RULES_SRC='guardadas en este navegador'}catch(e){}
 $('#aSave').onclick=async()=>{const n=Object.keys(DRAFT).length;RULES.manual=Object.assign({},RULES.manual||{},DRAFT);
-  try{await saveRules();DRAFT={};$('#aMsg').textContent=`Guardado: ${n} cuenta${n>1?'s':''}. Todo el panel se ha recalculado.`}catch(err){$('#aMsg').textContent='No se ha podido guardar ('+(err&&err.code||'error')+'). Los meses se aplican solo en esta sesión.'}
+  try{await saveRules();DRAFT={};MTDIRTY=false;$('#aMsg').textContent='Guardado. Todo el panel se ha recalculado.'}catch(err){$('#aMsg').textContent='No se ha podido guardar ('+(err&&err.code||'error')+'). Los meses se aplican solo en esta sesión.'}
   render()};
 
 // ---- rules: plazo por defecto, reglas por texto y TODOS los clientes
