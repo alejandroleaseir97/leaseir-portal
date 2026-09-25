@@ -400,7 +400,11 @@ function alerts(){
   A.push({k:'cese',t:'Baja en el resumen pero se sigue facturando',d:'El resumen tiene fecha de cese y Holded sigue emitiendo la cuota',items:EV.filter(o=>o.e.cs&&(o.e.cs.c||o.e.cs.cx)&&o.ma&&samePayer(D.cust[o.e.m.ci],o.e.cs.o))});
   const fut=EV.filter(o=>o.d&&o.d>TODAY&&!o.e.ina);
   A.push({k:'fut',t:'Fecha de salida en el futuro',d:'La fecha de salida del equipo (columna Y) es posterior a hoy: la garantía sale mal calculada',items:fut});
-  const stop=Object.keys(invByCi).map(ci=>lastInv(ci)).filter(v=>v&&days(pd(v.fecha),HOLDED_DATE)>ACTIVE_DAYS&&!/valoraci/i.test(v.desc));
+  // Revisados con Alejandro el 25/09/2026: cuotas terminadas y controladas (cliente|fecha de la última factura). Si vuelven a facturar y paran de nuevo, reaparecen.
+  const _sk=(c,f)=>String(c).replace(/\((EndCust|DistRec)-\d+\)/,'').normalize('NFD').replace(/[^A-Za-z]/g,'').toLowerCase()+'|'+f;
+  // Revisados con Alejandro el 25/09/2026: cuotas terminadas y controladas (Yaiza Colchón: en pausa por maternidad). Si vuelven a facturar y paran de nuevo, reaparecen.
+  const STOP_OK=new Set([['DUMASEROY S.L.U.','2026-01-14'],['IDEALDIS S.L. - Centro Iturrama','2025-12-31'],['IDEALDIS, S.L. - Centro Morea','2025-12-31'],['IDEALDIS, S.L. - Centro Urbil','2025-12-31'],['SCULP LINE, S.L.','2026-01-08'],['Yaiza Colchón Ariza','2026-05-05']].map(([c,f])=>_sk(c,f)));
+  const stop=Object.keys(invByCi).map(ci=>lastInv(ci)).filter(v=>v&&days(pd(v.fecha),HOLDED_DATE)>ACTIVE_DAYS&&!/valoraci/i.test(v.desc)&&!STOP_OK.has(_sk(v.cliente,v.fecha)));
   A.push({k:'stop',t:'Cuotas que han dejado de emitirse',d:'Clientes con mantenimiento cuya última factura tiene más de '+ACTIVE_DAYS+' días',rows:stop});
   return A.filter(a=>(a.items||a.rows||a.rows2).length);
 }
