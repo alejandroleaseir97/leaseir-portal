@@ -274,7 +274,7 @@ th.sth.on .ar{opacity:1;color:var(--acc)}
     </div>
     <div class="card list">
       <div class="tools" id="chips"></div>
-      <div class="tools"><input class="search" id="q" type="search" placeholder="Buscar nº de serie, cliente o factura" autocomplete="off"></div>
+      <div class="tools"><input class="search" id="q" type="search" placeholder="Buscar nº de serie, cliente o factura" autocomplete="off"><button class="btn" type="button" id="lxl" title="Descargar en Excel los equipos que se ven en la lista">⤓ Excel</button></div>
       <div class="scroll" id="tbl"></div>
     </div>
   </section>
@@ -490,6 +490,7 @@ function renderList(){
   if(SORT.eq)a=sortArr(a,SORT.eq,GEQ);
   else a=a.slice().sort((x,y)=>{const ex=x.end?x.end.getTime():0,ey=y.end?y.end.getTime():0;
     if(F.month||F.st==='garantia'||F.kpi==='soon')return ex-ey;return (y.d?y.d.getTime():0)-(x.d?x.d.getTime():0)});
+  window.__LIST=a;
   const N=400;const show=a.slice(0,N);
   $('#tbl').innerHTML=`<table><thead><tr>${th('eq','serie','Nº serie')}${th('eq','cliente','Cliente')}${th('eq','fin','Fin garantía','wrap')}${th('eq','estado','Estado')}${th('eq','tipo','Mantenimiento')}${th('eq','full','Garantía por mant. hasta','wrap')}${th('eq','fact','Últ. factura')}</tr></thead><tbody>${show.map((o,i)=>{const e=o.e;const warn=(o.ma&&o.end&&TODAY<=o.end)||(e.m&&(e.m.dup||(!e.m.owner_ok&&o.ma)));
     return `<tr data-i="${EV.indexOf(o)}"><td class="mono">${esc(e.s)}${e.t==='H'?' <span class="note">(pieza)</span>':''}</td><td class="cl" style="max-width:170px" title="${esc(e.c)} · ${esc(e.dv||'')}">${esc(e.c||'—')}</td><td>${o.end&&o.st!=='renting'?fd(o.end):'—'}<br><span class="note">salida ${fd(o.d)}</span></td><td><span class="pill ${ST[o.st].p}">${ST[o.st].l}</span>${warn?'<span class="warn" title="Revisar">!</span>':''}</td><td>${mtCell(o)}${e.m&&o.ma&&e.m.precio?'<br><span class="note">'+eur2(e.m.precio+(e.m.hpx||0))+'/mes</span>':''}</td><td>${fullCell(o)}</td><td>${e.m?invCell(lastInv(e.m.ci),true):''}</td></tr>`}).join('')}</tbody></table>${a.length>N?`<div class="more">Mostrando ${N} de ${nf.format(a.length)}. Busca o filtra para acotar.</div>`:''}${!a.length?'<div class="more">Ningún equipo con este filtro.</div>':''}`;
@@ -606,8 +607,8 @@ function alertModal(a){let h=`<div class="note">${esc(a.d)}</div><div class="sec
   else if(a.rows2){h+=`<div class="mt"><table><thead><tr><th>Cliente Holded</th><th>Factura</th><th>Serie leída</th></tr></thead><tbody>${a.rows2.map(u=>`<tr><td class="cl">${esc(u.cliente)}</td><td class="mono">${esc(u.num)}</td><td class="mono">${esc(u.tok)}</td></tr>`).join('')}</tbody></table></div>`}
   else if(a.k==='un'){h+=`<div class="mt"><table><thead><tr><th>Cliente Holded</th><th>Factura</th><th>Lo que pone</th><th class="r">Cuota</th><th style="white-space:normal">Por qué no se casa</th></tr></thead><tbody>${a.rows.map(u=>`<tr style="cursor:default"><td class="cl">${esc(D.cust[u.ci])}</td><td class="mono">${esc(u.num)}</td><td>${esc(u.tok)} ${esc(u.modelo||'')}</td><td class="r">${u.precio!=null?eur2(u.precio):''}</td><td style="white-space:normal;min-width:220px;max-width:300px;overflow-wrap:anywhere">${u.past?'<b style="color:var(--bad)">':''}${esc(u.motivo||'')}${u.past?'</b>':''}</td></tr>`).join('')}</tbody></table></div>`}
   else {h+=`<div class="mt"><table><thead><tr><th>Cliente</th><th>Factura</th><th>Fecha</th><th class="r">Base</th><th>Estado</th></tr></thead><tbody>${a.rows.map(v=>`<tr><td class="cl">${esc(v.cliente)}</td><td class="mono">${esc(v.num)}</td><td>${fd(pd(v.fecha))}</td><td class="r">${eur2(v.base)}</td><td>${esc(v.estado)}</td></tr>`).join('')}</tbody></table></div>`}
-  h+='</div><div class="row2"><button class="btn" type="button" id="back">‹ Volver</button></div>';
-  openM(a.t,h);wireRows();$('#back').onclick=()=>$('#bAlert').click()}
+  h+='</div><div class="row2"><button class="btn" type="button" id="back">‹ Volver</button><button class="btn alt" type="button" id="axl">⤓ Descargar Excel</button></div>';
+  openM(a.t,h);wireRows();$('#back').onclick=()=>$('#bAlert').click();$('#axl').onclick=()=>exportAlert(a)}
 
 
 // ---- aviso de fin de garantía al cliente
@@ -842,6 +843,59 @@ function renderCT(){
   $('#ctMsg').textContent=CTMSG;
 }
 
+/* ---------- Exportar a Excel (.xlsx real, sin librerías) ---------- */
+const XL=(()=>{
+  const enc=new TextEncoder();
+  const CRC=(()=>{const t=new Uint32Array(256);for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[n]=c>>>0}return t})();
+  const crc32=b=>{let c=0xFFFFFFFF;for(let i=0;i<b.length;i++)c=CRC[(c^b[i])&0xFF]^(c>>>8);return (c^0xFFFFFFFF)>>>0};
+  function zip(files){const parts=[],cd=[];let off=0;
+    for(const [name,data] of files){const nb=enc.encode(name),crc=crc32(data);
+      const h=new DataView(new ArrayBuffer(30));h.setUint32(0,0x04034b50,true);h.setUint16(4,20,true);h.setUint16(8,0,true);h.setUint32(14,crc,true);h.setUint32(18,data.length,true);h.setUint32(22,data.length,true);h.setUint16(26,nb.length,true);
+      parts.push(new Uint8Array(h.buffer),nb,data);
+      const c=new DataView(new ArrayBuffer(46));c.setUint32(0,0x02014b50,true);c.setUint16(4,20,true);c.setUint16(6,20,true);c.setUint32(16,crc,true);c.setUint32(20,data.length,true);c.setUint32(24,data.length,true);c.setUint16(28,nb.length,true);c.setUint32(42,off,true);
+      cd.push(new Uint8Array(c.buffer),nb);off+=30+nb.length+data.length}
+    const cdLen=cd.reduce((s,x)=>s+x.length,0);const e=new DataView(new ArrayBuffer(22));e.setUint32(0,0x06054b50,true);e.setUint16(8,files.length,true);e.setUint16(10,files.length,true);e.setUint32(12,cdLen,true);e.setUint32(16,off,true);
+    return new Blob([...parts,...cd,new Uint8Array(e.buffer)],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'})}
+  const x=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])).replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g,'');
+  const col=i=>{let s='';i++;while(i){const m=(i-1)%26;s=String.fromCharCode(65+m)+s;i=Math.floor((i-1)/26)}return s};
+  function build(sheet,headers,rows,note){
+    const all=[headers,...rows];const W=headers.map((h,j)=>Math.min(60,Math.max(10,...all.map(r=>String(r[j]??'').length+2))));
+    let sd='';all.forEach((r,i)=>{sd+=`<row r="${i+1}">`+r.map((v,j)=>{const ref=col(j)+(i+1);if(i===0)return `<c r="${ref}" t="inlineStr" s="1"><is><t>${x(v)}</t></is></c>`;
+      if(v instanceof Date&&!isNaN(v)){const n=(Date.UTC(v.getFullYear(),v.getMonth(),v.getDate())-Date.UTC(1899,11,30))/864e5;return `<c r="${ref}" s="2"><v>${n}</v></c>`}
+      if(typeof v==='number'&&isFinite(v))return `<c r="${ref}" s="3"><v>${v}</v></c>`;
+      if(v===null||v===undefined||v==='')return '';return `<c r="${ref}" t="inlineStr"><is><t xml:space="preserve">${x(v)}</t></is></c>`}).join('')+'</row>'});
+    if(note){const r=all.length+2;sd+=`<row r="${r}"><c r="A${r}" t="inlineStr" s="4"><is><t>${x(note)}</t></is></c></row>`}
+    const ws=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews><cols>${W.map((w,j)=>`<col min="${j+1}" max="${j+1}" width="${w}" customWidth="1"/>`).join('')}</cols><sheetData>${sd}</sheetData><autoFilter ref="A1:${col(headers.length-1)}${all.length}"/></worksheet>`;
+    const st=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><numFmts count="2"><numFmt numFmtId="164" formatCode="dd/mm/yyyy"/><numFmt numFmtId="165" formatCode="#,##0.00"/></numFmts><fonts count="3"><font><sz val="10"/><name val="Arial"/></font><font><b/><sz val="10"/><color rgb="FFFFFFFF"/><name val="Arial"/></font><font><i/><sz val="9"/><color rgb="FF666666"/><name val="Arial"/></font></fonts><fills count="3"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FF074C5B"/></patternFill></fill></fills><borders count="1"><border/></borders><cellStyleXfs count="1"><xf/></cellStyleXfs><cellXfs count="5"><xf fontId="0"/><xf fontId="1" fillId="2" applyFont="1" applyFill="1"/><xf fontId="0" numFmtId="164" applyNumberFormat="1"/><xf fontId="0" numFmtId="165" applyNumberFormat="1"/><xf fontId="2" applyFont="1"/></cellXfs></styleSheet>`;
+    const name=x(String(sheet).replace(/[\\\/?*\[\]:]/g,' ').slice(0,31));
+    const files=[['[Content_Types].xml',`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/></Types>`],
+      ['_rels/.rels',`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>`],
+      ['xl/workbook.xml',`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="${name}" sheetId="1" r:id="rId1"/></sheets><definedNames><definedName name="_xlnm._FilterDatabase" localSheetId="0" hidden="1">'${name.replace(/'/g,"''")}'!$A$1:$${col(headers.length-1)}$${all.length}</definedName></definedNames></workbook>`],
+      ['xl/_rels/workbook.xml.rels',`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>`],
+      ['xl/worksheets/sheet1.xml',ws],['xl/styles.xml',st]].map(([n,s])=>[n,enc.encode(s)]);
+    return zip(files)}
+  async function save(fname,blob){
+    if(window.claude&&window.claude.use){try{const dl=await window.claude.use('downloads');if(dl){await dl.save({filename:fname,data:blob});return}}catch(e){if(e&&(e.code==='declined'||e.code==='rate_limited'))return}}
+    const u=URL.createObjectURL(blob);const a=document.createElement('a');a.href=u;a.download=fname;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000)}
+  return {build,save};
+})();
+const _dt=d=>d instanceof Date?d:(typeof d==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(d)?pd(d):null);
+const _num=s=>typeof s==='number'?s:null;
+function eqRow(o){const e=o.e,m=e.m,r=e.rt;const qa=(D.qa||[]).filter(q=>q.i===EQI.get(e)).map(q=>q.t).join(' · ');
+  return [e.s,e.hp||'',e.c||'',e.cv||'',_dt(o.d),o.end&&o.st!=='renting'?o.end:null,ST[o.st].l,
+    m?(mtOf(m.pc||e.c)?mtName(mtOf(m.pc||e.c)):''):'',m?m.num:'',m?(D.cust[m.ci]||''):'',m?_num((m.precio||0)+(m.hpx||0)):null,
+    r?r.n:'',r?r.c:'',r?_num(r.b):null,(r&&r.mot)||(m&&m.mot)||'',e.fin||o.why||'',qa,
+    e.sr==='Agregado'?'Sales 2024 Agregado, fila '+e.r:'Historical Sales V3, fila '+e.r]}
+const EQH=['Serie','Pieza de mano','Cliente (última posición)','Cliente en ventas (si difiere)','Salida del equipo','Fin de garantía','Estado','Contrato de mantenimiento','Factura mantenimiento','Cliente facturado (mant.)','Cuota mant. (€/mes)','Factura renting','Cliente facturado (renting)','Base renting (€)','Cómo se casó la factura','Motivo / situación','A revisar','Origen en ventas'];
+function xlName(t){return (t+' '+new Date().toISOString().slice(0,10)).replace(/[\\\/:*?"<>|]/g,' ')+'.xlsx'}
+async function exportAlert(a){let H,R;
+  if(a.items){H=EQH;R=a.items.map(eqRow)}
+  else if(a.rows2){H=['Cliente Holded','Factura','Serie leída / motivo'];R=a.rows2.map(u=>[u.cliente,u.num,u.tok])}
+  else if(a.k==='un'){H=['Cliente Holded','Factura','Lo que pone','Modelo','Cuota (€)','Por qué no se casa'];R=a.rows.map(u=>[D.cust[u.ci],u.num,u.tok,u.modelo||'',_num(u.precio),u.motivo||''])}
+  else {H=['Cliente','Factura','Fecha','Base (€)','Estado'];R=a.rows.map(v=>[v.cliente,v.num,_dt(v.fecha),_num(v.base),v.estado])}
+  await XL.save(xlName(a.t),XL.build(a.t,H,R,a.d+' · Garantías y Mantenimiento Leaseir · '+new Date().toLocaleDateString('es-ES')))}
+async function exportList(){const a=window.__LIST||[];await XL.save(xlName('Parque de equipos'),XL.build('Parque',EQH,a.map(eqRow),'Parque filtrado · Garantías y Mantenimiento Leaseir · '+new Date().toLocaleDateString('es-ES')))}
+
 async function downloadPdf(){
   const name='Mantenimientos Leaseir - Packages y Caliport.pdf';
   const bin=Uint8Array.from(atob(D.pdf),c=>c.charCodeAt(0));
@@ -994,6 +1048,7 @@ $('#bRules').onclick=()=>{RDRAFT={};RQ='';RF='all';
   };draw()};
 
 $('#q').addEventListener('input',e=>{F.q=e.target.value;renderList()});
+$('#lxl').onclick=exportList;
 $('#asof').textContent=`Ventas: ${D.src.mod} · Holded: ${fd(HOLDED_DATE)} · ${nf.format(D.eq.length)} series`;
 render();
 if(VIEW==='mt')renderMT();
