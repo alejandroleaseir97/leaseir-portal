@@ -379,14 +379,20 @@ function recompute(){EV=D.eq.map(e=>evalEq(e))}
 const HOLCOL=new Set(['mg','own','dup','rpos','rdup','cese','qa']);
 const _nt=s=>new Set(String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/\(.*?\)/g,' ').match(/[a-z]{3,}/g)?.filter(x=>!['laser','centro','centros','depilacion','estetica','clinica','medicina','slu'].includes(x))||[]);
 // Si quien paga hoy la cuota no es el titular del contrato antiguo, el contrato viejo terminó y manda la cuota de Holded
-const samePayer=(payer,titular)=>{if(!titular)return true;const a=_nt(payer),b=_nt(titular);return [...b].some(x=>a.has(x))};
+const grp=n=>{n=String(n||'').toLowerCase();return /sin vello/.test(n)?'sv':/belen/.test(n)?'bel':/alcal|azca|alonso l|princesa l|serrano l|navarra l|dermasana/.test(n)?'derm':/br esthetic|brull/.test(n)?'br':/unico|beauty cool/.test(n)?'uni':null};
+const _nt2=s=>new Set(String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().match(/[a-z]{3,}/g)?.filter(x=>!['laser','centro','centros','depilacion','estetica','clinica','medicina','slu'].includes(x))||[]);
+const samePayer=(payer,titular)=>{if(!titular)return true;const a=_nt2(payer),b=_nt2(titular);return [...b].some(x=>a.has(x))};
+// Clientes revisados con Alejandro (25/09/2026): cuota parada y controlada, o contrato en pausa (Yaiza Colchón, maternidad)
+const CTRL_CLI=['dumaseroy','idealdis','sculp line','sculpt line','yaiza colchon'];
+const CTRL=o=>{const n=(String(o.e.c||'')+' '+String((o.e.cs&&o.e.cs.o)||'')+' '+(o.e.m?String(D.cust[o.e.m.ci]||''):'')).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();return CTRL_CLI.some(k=>n.includes(k))};
 function alerts(){
   const A=[];
   const inGarMant=EV.filter(o=>o.ma&&o.end&&TODAY<=o.end);
   A.push({k:'mg',t:'Cobrando mantenimiento en garantía',d:'Equipo aún en plazo de garantía con cuota mensual en Holded',items:inGarMant});
-  const own=EV.filter(o=>o.e.m&&mActive(o.e.m)&&!o.e.m.owner_ok);
+  // Paga otro distinto del dueño en ventas: si el resumen de contratos pone como titular a quien paga (o es de su grupo, o el contrato viejo está de baja), ventas está desactualizado y no hay nada que decidir
+  const own=EV.filter(o=>o.e.m&&mActive(o.e.m)&&!o.e.m.owner_ok&&!(o.e.cs&&(samePayer(D.cust[o.e.m.ci],o.e.cs.o||'—')&&o.e.cs.o||(o.e.cs.s&&o.e.cs.s!=='ant'&&grp(D.cust[o.e.m.ci])===o.e.cs.s)||o.e.cs.c||o.e.cs.cx)));
   A.push({k:'own',t:'La factura de mantenimiento va a otro cliente',d:'El último dueño en ventas no es quien paga la cuota',items:own});
-  const dup=EV.filter(o=>o.e.m&&o.e.m.dup);
+  const dup=EV.filter(o=>o.e.m&&o.e.m.dup&&!CTRL(o));
   A.push({k:'dup',t:'Serie facturada dos veces',d:'El mismo nº de serie aparece en dos líneas o dos clientes',items:dup});
   A.push({k:'un',t:'Cuotas de mantenimiento que no se pueden casar con un equipo',d:'Líneas de factura de Holded sin nº de serie, o cuyo equipo no está (o ya no está) a nombre del cliente en ventas. Dentro, el motivo de cada una',rows:D.un});
   const venc=Object.keys(invByCi).map(ci=>lastInv(ci)).filter(v=>v&&v.estado==='Vencida');
@@ -396,7 +402,7 @@ function alerts(){
   A.push({k:'rpos',t:'Renting facturado a otro cliente',d:'La factura de renting va a un cliente distinto del que figura en ventas: manda la factura',items:EV.filter(o=>o.e.rt&&!o.e.rt.ok)});
   A.push({k:'rdup',t:'Equipo facturado en renting a dos clientes',d:'El mismo nº de serie aparece en facturas de renting de clientes distintos',items:EV.filter(o=>o.e.rt&&o.e.rt.dup)});
   A.push({k:'run',t:'Rentings de Holded que no están en ventas',d:'Facturas de renting de agosto y septiembre cuya serie no está en los ficheros de ventas',rows2:D.rent_un||[]});
-  A.push({k:'csnof',t:'Con contrato en el resumen pero sin cuota en Holded',d:'El resumen de contratos los da en vigor y ninguna factura de mantenimiento reciente los incluye',items:EV.filter(o=>o.e.cs&&!o.e.cs.c&&!o.e.cs.cx&&(!o.e.cs.st||o.e.cs.st==='Con mantenimiento')&&!o.e.cs.imp&&!o.ma&&!o.e.ina&&o.st!=='otro')});
+  A.push({k:'csnof',t:'Con contrato en el resumen pero sin cuota en Holded',d:'El resumen de contratos los da en vigor y ninguna factura de mantenimiento reciente los incluye',items:EV.filter(o=>!CTRL(o)&&o.e.cs&&!o.e.cs.c&&!o.e.cs.cx&&(!o.e.cs.st||o.e.cs.st==='Con mantenimiento')&&!o.e.cs.imp&&!o.ma&&!o.e.ina&&o.st!=='otro')});
   A.push({k:'cese',t:'Baja en el resumen pero se sigue facturando',d:'El resumen tiene fecha de cese y Holded sigue emitiendo la cuota',items:EV.filter(o=>o.e.cs&&(o.e.cs.c||o.e.cs.cx)&&o.ma&&samePayer(D.cust[o.e.m.ci],o.e.cs.o))});
   const fut=EV.filter(o=>o.d&&o.d>TODAY&&!o.e.ina);
   A.push({k:'fut',t:'Fecha de salida en el futuro',d:'La fecha de salida del equipo (columna Y) es posterior a hoy: la garantía sale mal calculada',items:fut});
