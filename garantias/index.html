@@ -150,7 +150,11 @@ table.cmp th.cmpr{position:sticky;left:0;background:var(--card);text-transform:n
 .fl{display:flex;flex-direction:column;gap:4px;font-size:11.5px;color:var(--mut);font-weight:700}
 .fl input,.fl textarea{border:1px solid var(--line);border-radius:10px;padding:7px 10px;font:inherit;font-size:13px;font-weight:500;color:var(--ink);background:#fff;width:100%}
 .fl input:focus,.fl textarea:focus{outline:2px solid var(--acc);outline-offset:1px}
-.kgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(225px,1fr));gap:10px;align-items:start}
+.kgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:10px;align-items:start}
+.kah{display:flex;gap:10px;align-items:baseline;margin:12px 0 6px;font-size:12px;color:var(--mut)}.kah b{white-space:nowrap;color:var(--ink);font-family:var(--fd);font-size:13.5px}
+.klist{display:flex;flex-direction:column;gap:4px}
+.kr{display:grid;grid-template-columns:auto minmax(120px,1.1fr) minmax(0,2fr) minmax(0,.9fr) auto auto;gap:10px;align-items:center;background:var(--soft);border-radius:10px;padding:6px 10px;border-left:4px solid var(--c);font-size:12px}
+.kr .kn{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12.5px}.kr .kd1{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--mut)}.kr .kpr{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.kr .kf{color:var(--mut);white-space:nowrap;font-size:11.5px}
 .kc{background:var(--soft);border-radius:14px;padding:10px 12px;display:flex;flex-direction:column;gap:6px;border-top:4px solid var(--c)}
 .kh{display:flex;align-items:center;gap:8px}
 .kh .kn{flex:1;font-size:13px;line-height:1.2}
@@ -212,7 +216,7 @@ th.sth.on .ar{opacity:1;color:var(--acc)}
   <header>
     <span class="brand" title="Leaseir Technologies"><svg viewBox="0 0 584 506" aria-hidden="true"><path fill="currentColor" d="M266.69 154.59L583.51 450.02V446.46L339.81 30.05C326.91 10.09 299.53 0 276.04 0H276C233.16 0 214.45 31.65 214.45 31.65L141.33 160.22C200.8 83.08 266.68 154.6 266.68 154.6L266.69 154.59Z"/><path fill="currentColor" d="M285.25 416.82C285.25 416.82 358.22 373.73 397 392.17L329.97 338.28C305.9 318.92 272.59 314.34 244.94 328.11C239.63 330.75 199.86 354.21 147.87 377.13C147.87 377.13 89.25 408.97 64.9 358.77C64.9 358.77 52.57 319.98 66.69 287.85C66.62 287.85 7.76 398.48 7.76 398.48C-27.97 475.22 66.53 538.35 146.86 487.78L285.24 416.81L285.25 416.82Z"/></svg><span>LEASEIR</span></span>
     <h1>Garantías y Mantenimiento</h1>
-    <div class="seg" role="tablist"><button type="button" id="tP" class="on" role="tab">Parque</button><button type="button" id="tA" role="tab">Grandes cuentas</button><button type="button" id="tM" role="tab">Tipos de mantenimiento</button></div>
+    <div class="seg" role="tablist"><button type="button" id="tP" class="on" role="tab">Parque</button><button type="button" id="tA" role="tab">Grandes cuentas</button><button type="button" id="tM" role="tab">Tipos de mantenimiento</button><button type="button" id="tC" role="tab">Contratos</button></div>
     <span class="asof" id="asof"></span>
     <button class="btn" id="bAlert" type="button">Lo que no cuadra <span class="n" id="nAlert">0</span></button>
     <button class="btn alt" id="bRules" type="button">Reglas de garantía</button>
@@ -229,6 +233,16 @@ th.sth.on .ar{opacity:1;color:var(--acc)}
       <div class="tools" id="mtChips"></div>
       <div class="scroll" id="mtCust"></div>
     </div>
+  </section>
+  <section class="card acc" id="ctV" hidden style="grid-row:2/4">
+    <div class="tools">
+      <div class="accsum" id="ctSum"></div><span class="sp"></span>
+      <div id="ctChips" class="tools" style="margin:0"></div>
+      <input class="search" id="ctq" type="search" placeholder="Buscar cliente" autocomplete="off" style="max-width:220px;flex:none">
+      <button class="btn alt" type="button" id="ctNew">+ Subir contrato</button>
+    </div>
+    <div class="note" style="margin:-2px 0 8px"><span id="ctNote"></span> <span id="ctMsg" style="font-weight:700;color:var(--acc)"></span></div>
+    <div class="scroll" id="ctT"></div>
   </section>
   <section class="card acc" id="accV" hidden style="grid-row:2/4">
     <div class="tools">
@@ -271,13 +285,20 @@ const DEFAULT_TYPES=[
  {id:'d50',short:'D50',color:'#3A93A8',name:'Seguro Diodo 50%',d:'50% de descuento en el diodo.',single:'690 €/año',dual:'850 €/año',quad:'950 €/año',caliport:'350 €/año',rev:'1.000 €',portes:'No incluido',susti:'100 €/día (400 €/semana)',cond:CD,min:'24 meses',src:'pdf'},
  {id:'pack',short:'PACK',color:'#0F7A63',name:'Pack Mantenimiento',d:'50% en diodo y en el resto de piezas y horas de taller. 80% en Caliport.',single:'850 €/año',dual:'990 €/año',quad:'1.090 €/año',caliport:'70 €/año',rev:'500 €/año',portes:'No incluido',susti:'100 €/día (400 €/semana)',cond:CD,min:'24 meses',src:'pdf'},
  {id:'prem',short:'PREM',color:'#074C5B',name:'Mantenimiento Premium (extensión de garantía)',d:'50% de descuento en diodo. 50% en mal uso del diodo. 80% de descuento en piezas, horas de taller y Caliport. Revisión anual en taller o in situ incluida.',single:'190 €/mes (160 €/mes promo compra)',dual:'250 €/mes (225 €/mes promo compra)',quad:'275 €/mes (250 €/mes promo compra)',caliport:'70 €/año',rev:'Incluida',portes:'Incluidos',susti:'0 €/día (máximo 1 semana + los días de retraso provocados por Leaseir)',cond:CD,min:'24 meses',src:'pdf'},
- {id:'dist',short:'DIST',color:'#C98A1E',name:'Pack Distribuidores y Cadenas',d:'50% en diodo y piezas. 80% en Caliport.',single:'690 €/año',dual:'850 €/año',quad:'950 €/año',caliport:'70 €/año',rev:'500 €/año',portes:'No incluido',susti:'100 €/día (400 €/semana)',cond:CD,min:'24 meses',src:'pdf'}];
+ {id:'dist',short:'DIST',color:'#C98A1E',name:'Pack Distribuidores y Cadenas',d:'50% en diodo y piezas. 80% en Caliport.',single:'690 €/año',dual:'850 €/año',quad:'950 €/año',caliport:'70 €/año',rev:'500 €/año',portes:'No incluido',susti:'100 €/día (400 €/semana)',cond:CD,min:'24 meses',src:'pdf'},
+ {id:'sv',short:'SV',color:'#8A5A9E',name:'Contrato Sin Vello (cadena)',d:'50% de descuento en piezas y en horas de taller. 40% de descuento en diodo. Garantía de 6 meses en las piezas. Hora de técnico externo a 100 €/h.',dual:'85 €/mes por equipo (según Holded)',caliport:'',rev:'',portes:'No incluidos',susti:'Incluida: máx. 5 días por incidencia; días adicionales a 80 €/día',cond:'40% de descuento en diodo',min:'',src:'resumen',custom:true},
+ {id:'bel',short:'BEL',color:'#5C7C85',name:'Contrato Clínica Belenús',d:'50% de descuento en piezas y diodo. 100% en horas de técnico. Caliport incluido.',dual:'75 €/mes por equipo (según Holded)',caliport:'Incluido (100% de descuento)',rev:'',portes:'Sin descuento',susti:'No incluida',cond:'50% de descuento en diodo',min:'',src:'resumen',custom:true},
+ {id:'derm',short:'DERM',color:'#4D7C0F',name:'Contrato Dermasana (franquicias)',d:'50% de descuento en piezas. Garantía de 6 meses en las reparaciones. Mano de obra in situ a 100 €/h sin descuento.',dual:'75 €/mes consola + 35 €/mes pieza de mano (según Holded)',caliport:'100 € precio fijo, portes incluidos',rev:'',portes:'No incluidos',susti:'Incluida: máx. 5 días por incidencia; días adicionales a 80 €/día',cond:'Diodo a precio fijo según millones de disparos al degradar: 0-2 M 1.800 €; 2-5 M 3.000 €; 5-9 M 5.000 €; 9-14 M 6.000 €; más de 14 M 9.000 €',min:'',src:'resumen',custom:true},
+ {id:'uni',short:'UNI',color:'#B3363F',name:'Contrato Unico Italia',d:'Equipos nuevos: 50% en diodo, 50% en portes (si hacen falta), 100% en el resto de piezas. Equipos usados: además, el primer diodo al 100%.',portes:'50% de descuento (si hacen falta)',susti:'20 días al año',cond:'Nuevos: 50% en diodo. Usados: primer diodo 100%, después 50%',min:'',src:'resumen',custom:true},
+ {id:'br',short:'BR',color:'#05272D',name:'Contrato BR Esthetic (Brull)',d:'Condiciones no recogidas en el resumen: revisar el contrato firmado.',dual:'33,33 €/mes por equipo (según Holded)',src:'resumen',custom:true},
+ {id:'ant',short:'ANT',color:'#9A6A12',name:'Mantenimiento antiguo (individual)',d:'Contratos individuales anteriores a los paquetes de 2024, con cuota propia por equipo. Condiciones según cada contrato firmado.',src:'resumen',custom:true}];
 const NOMANT={name:'Sin mantenimiento',d:'Sin cobertura.',single:'0',dual:'0',quad:'0',caliport:'350 €',rev:'1.000 €',portes:'No incluido',susti:'100 €/día (400 €/semana)',cond:'—',min:'—'};
 const TFIELDS=[['d','Qué cubre'],['single','Single'],['dual','Dual'],['quad','Quad'],['caliport','Caliport con certificado'],['rev','Revisión anual (taller o in situ)'],['portes','Portes / desplazamiento'],['susti','Máquina de sustitución'],['cond','Condiciones descuento en diodo'],['min','Periodo mínimo']];
 const TCOLORS=['#3A93A8','#0F7A63','#074C5B','#C98A1E','#B3363F','#5C7C85','#8A5A9E','#4D7C0F','#05272D'];
 const types=()=>RULES.types||(RULES.types=JSON.parse(JSON.stringify(DEFAULT_TYPES)));
 const typeById=id=>id?types().find(t=>t.id===id):null;
-const mtOf=c=>{const k=(RULES.mtc||{})[c];return typeById(k)?k:null};
+const mtOf=c=>{const m=RULES.mtc||{};const k=Object.prototype.hasOwnProperty.call(m,c)?m[c]:((D.mtcDefault||{})[c]||null);return typeById(k)?k:null};
+const mtAuto=c=>!Object.prototype.hasOwnProperty.call(RULES.mtc||{},c)&&!!(D.mtcDefault||{})[c];
 const mtName=k=>{const t=typeById(k);return t?t.name:''};
 const mtColor=k=>{const t=typeById(k);return t?t.color:'#8A93A0'};
 const mtBadge=k=>{const t=typeById(k);return t?`<span class="tb" style="background:${t.color}" title="${esc(t.name)}">${esc(t.short)}</span>`:''};
@@ -298,7 +319,7 @@ const MES=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','di
 const ST={garantia:{l:'En garantía',c:'var(--gar)',p:'p-garantia'},mant:{l:'Mantenimiento',c:'var(--man)',p:'p-mant'},sincob:{l:'Sin cobertura',c:'var(--sin)',p:'p-sincob'},renting:{l:'Renting',c:'var(--ren)',p:'p-renting'},rsinf:{l:'Renting sin factura',c:'var(--bad)',p:'p-rsinf'},otro:{l:'Baja / demo / sin fecha',c:'var(--gry)',p:'p-otro'}};
 
 // ---- ordenación por columnas
-const SORT={eq:null,acc:null,cm:null,rl:null,km:null,kmk:null,mt:null};
+const SORT={eq:null,acc:null,cm:null,rl:null,km:null,kmk:null,mt:null,ct:null};
 const SDIR={venta:-1,cuota:-1,fact:-1,equipos:-1,garantia:-1,mant:-1,sincob:-1,soon:-1,n:-1,last:-1};
 const STORD={garantia:0,mant:1,sincob:2,renting:3,otro:4};
 function sortArr(arr,s,G){if(!s||!G[s.k])return arr;const g=G[s.k];return arr.slice().sort((x,y)=>{const a=g(x),b=g(y);const na=a==null||a==='',nb=b==null||b==='';if(na&&nb)return 0;if(na)return 1;if(nb)return -1;const r=typeof a==='string'?a.localeCompare(b,'es',{sensitivity:'base',numeric:true}):a-b;return s.d*r})}
@@ -328,8 +349,8 @@ function evalEq(e,at){
   const ma=mActive(e.m)&&(!at||at>=TODAY);
   o.ma=ma;
   const fr=e.m?fullFor(e.c):null;
-  if(fr&&e.m){const cd=e.m.contrato&&/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(e.m.contrato)?(()=>{const [a,b,c]=e.m.contrato.split('/').map(Number);return new Date(c,b-1,a,12)})():null;
-    o.fStart=cd||o.end;o.fSrc=cd?'fecha de contrato en la factura':'fin de garantía (entra en mantenimiento al acabar la garantía)';
+  if(fr&&e.m){const cs0=e.cs&&e.cs.v?pd(e.cs.v):null;const cd=cs0||(e.m.contrato&&/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(e.m.contrato)?(()=>{const [a,b,c]=e.m.contrato.split('/').map(Number);return new Date(c,b-1,a,12)})():null);
+    o.fStart=cd||o.end;o.fSrc=cs0?'fecha en vigor del resumen de contratos':cd?'fecha de contrato en la factura':'fin de garantía (entra en mantenimiento al acabar la garantía)';
     o.fEnd=o.fStart?addM(o.fStart,fr.m):null;o.fRule=fr;o.fOn=!!(o.fEnd&&o.ma&&TODAY>=o.fStart&&TODAY<=o.fEnd)}
   const rt=e.rt;
   if(rt){o.st='renting';o.why=`Renting facturado en Holded: ${rt.n} (${fd(pd(rt.f))}, ${rt.c})`}
@@ -364,6 +385,10 @@ function alerts(){
   A.push({k:'rpos',t:'Renting facturado a otro cliente',d:'La factura de renting va a un cliente distinto del que figura en ventas: manda la factura',items:EV.filter(o=>o.e.rt&&!o.e.rt.ok)});
   A.push({k:'rdup',t:'Equipo facturado en renting a dos clientes',d:'El mismo nº de serie aparece en facturas de renting de clientes distintos',items:EV.filter(o=>o.e.rt&&o.e.rt.dup)});
   A.push({k:'run',t:'Rentings de Holded que no están en ventas',d:'Facturas de renting de agosto y septiembre cuya serie no está en los ficheros de ventas',rows2:D.rent_un||[]});
+  A.push({k:'csnof',t:'Con contrato en el resumen pero sin cuota en Holded',d:'El resumen de contratos los da en vigor y ninguna factura de mantenimiento reciente los incluye',items:EV.filter(o=>o.e.cs&&!o.e.cs.c&&(!o.e.cs.st||o.e.cs.st==='Con mantenimiento')&&!o.e.cs.imp&&!o.ma&&!o.e.ina&&o.st!=='otro')});
+  A.push({k:'hnocs',t:'Con cuota en Holded pero fuera del resumen de contratos',d:'Se facturan cada mes y no figuran en ninguna pestaña del resumen',items:EV.filter(o=>o.ma&&o.e.m&&!o.e.cs)});
+  A.push({k:'cese',t:'Baja en el resumen pero se sigue facturando',d:'El resumen tiene fecha de cese y Holded sigue emitiendo la cuota',items:EV.filter(o=>o.e.cs&&o.e.cs.c&&o.ma)});
+  A.push({k:'imp',t:'Impagados según el resumen de contratos',d:'Marcados como impagado o «baja y deben» en el resumen',items:EV.filter(o=>o.e.cs&&o.e.cs.imp)});
   const fut=EV.filter(o=>o.d&&o.d>TODAY&&!o.e.ina);
   A.push({k:'fut',t:'Fecha de venta en el futuro',d:'La fecha del fichero es posterior a hoy: la garantía sale mal calculada',items:fut});
   const stop=Object.keys(invByCi).map(ci=>lastInv(ci)).filter(v=>v&&days(pd(v.fecha),HOLDED_DATE)>ACTIVE_DAYS&&!/valoraci/i.test(v.desc));
@@ -498,6 +523,17 @@ function eqModal(o){
      <span class="k">Serie leída</span><span class="mono">${esc(m.tok)}</span></div>
      <div class="src">Origen: ${esc(D.src.holded)}; línea de la factura ${esc(m.num)} (PDF), cruzada por nº de serie${m.via==='cliente'?' <b>por nombre de cliente, porque la factura no trae serie</b>':''}. ${mActive(m)?'':'<b>Esta cuota ya no se emite</b> (última hace más de '+ACTIVE_DAYS+' días).'}${m.dup?' <b>Serie repetida en: '+m.dup.map(x=>esc(x.num)+' ('+esc(D.cust[x.ci])+', '+esc(x.tok)+')').join(', ')+'.</b>':''}${m.prev?' Antes se facturaba en '+esc(m.prev)+'.':''}</div></div>`;
   }
+  if(e.cs||e.bd){const c=e.cs||{};const SH={sv:'SIn Vello',bel:'Belenus',derm:'Dermasana',br:'Brull',ant:'Mantenimientos antiguos'};
+    h+=`<div class="sec"><h4>Resumen de contratos</h4><div class="steps">
+     ${c.s?`<span class="k">Contrato</span><span>${mtBadge(c.s)} ${esc(mtName(c.s))}</span>`:''}
+     ${c.vt||c.v?`<span class="k">En vigor desde</span><span>${esc(c.v&&/^\d{4}-\d{2}-\d{2}$/.test(c.v)&&!c.vt?fd(pd(c.v)):(c.vt||fd(pd(c.v))))}</span>`:''}
+     ${c.c?`<span class="k">Baja</span><span><b style="color:var(--bad)">${fd(pd(c.c))}</b></span>`:''}
+     ${c.ce?`<span class="k">Centro</span><span>${esc(c.ce)}</span>`:''}
+     ${c.st?`<span class="k">Estado en el resumen</span><span>${esc(c.st)}</span>`:''}
+     ${c.o?`<span class="k">Titular en el resumen</span><span>${esc(c.o)}</span>`:''}
+     ${c.imp?`<span class="k">Impagado</span><span><b style="color:var(--bad)">${esc(c.imp==='x'?'Sí':c.imp)}</b></span>`:''}
+     ${e.bd?`<span class="k">Antes en BEDDA</span><span>${esc(e.bd)}</span>`:''}</div>
+     <div class="src">Origen: Google Sheets «Equipos con contrato de mantenimiento»${c.s?', pestaña «'+esc(SH[c.s])+'»':''}${e.bd?', pestaña «BEDDA (EX)»':''}.</div></div>`}
   h+=`<div class="sec"><h4>Qué hacer</h4><div class="act">${esc(action(o))}</div></div>`;
   const bk=BACK;BACK=null;
   if(bk)h+='<div class="row2"><button class="btn" type="button" id="eqBack">‹ Volver</button></div>';
@@ -601,8 +637,8 @@ function avisoModal(c,back){
 
 // ---- grandes cuentas
 let MTDIRTY=false;let VIEW='parque';let DRAFT={};let AF='all';
-function setView(v){VIEW=v;$('#tP').classList.toggle('on',v==='parque');$('#tA').classList.toggle('on',v==='acc');$('#tM').classList.toggle('on',v==='mt');$('#mainV').hidden=v!=='parque';$('#kpis').hidden=v!=='parque';$('#accV').hidden=v!=='acc';$('#mtV').hidden=v!=='mt';if(v==='acc')renderAcc();if(v==='mt')renderMT()}
-$('#tP').onclick=()=>setView('parque');$('#tA').onclick=()=>setView('acc');$('#tM').onclick=()=>setView('mt');
+function setView(v){VIEW=v;$('#tP').classList.toggle('on',v==='parque');$('#tA').classList.toggle('on',v==='acc');$('#tM').classList.toggle('on',v==='mt');$('#mainV').hidden=v!=='parque';$('#kpis').hidden=v!=='parque';$('#accV').hidden=v!=='acc';$('#mtV').hidden=v!=='mt';$('#tC').classList.toggle('on',v==='ct');$('#ctV').hidden=v!=='ct';if(v==='acc')renderAcc();if(v==='mt')renderMT();if(v==='ct')renderCT()}
+$('#tP').onclick=()=>setView('parque');$('#tA').onclick=()=>setView('acc');$('#tM').onclick=()=>setView('mt');$('#tC').onclick=()=>setView('ct');$('#ctNew').onclick=()=>upModal(null);$('#ctq').addEventListener('input',e=>{CTQ=e.target.value;renderCT()});
 // ---- tipos de mantenimiento
 let MTF='all';
 function mtCustomers(){const m={};EV.forEach(o=>{if(!o.ma||!o.e.m)return;const c=o.e.c||'(sin cliente)';const a=m[c]||(m[c]={c,n:0,cuota:0,li:null});a.n++;a.cuota+=(o.e.m.precio||0)+(o.e.m.hpx||0);const li=lastInv(o.e.m.ci);if(li&&(!a.li||li.fecha>a.li.fecha))a.li=li});return Object.values(m).sort((x,y)=>y.cuota-x.cuota)}
@@ -615,12 +651,14 @@ function renderMT(){
   const showC=(t,f)=>{const c=commons.find(x=>x[0]===f);return t[f]&&(!c||t[f]!==c[2])};
   const kv=(l,v)=>v?`<div class="kv" title="${esc(l+': '+v)}"><span>${esc(l)}</span><b>${esc(v)}</b></div>`:'';
   $('#mtTypes').innerHTML=`<div class="tools" style="margin-bottom:8px"><button class="btn" type="button" id="mtPdf">⤓ Descargar PDF de los paquetes</button><button class="btn alt" type="button" id="mtNew">+ Nuevo tipo de contrato</button></div>
-   <div class="kgrid">${T.map(t=>`<div class="kc" style="--c:${t.color}">
+   <div class="kgrid">${T.filter(t=>t.src==='pdf').map(t=>`<div class="kc" style="--c:${t.color}">
      <div class="kh"><span class="tb" style="background:${t.color}">${esc(t.short)}</span><b class="kn">${esc(t.name)}</b><button class="lnk" type="button" data-te="${esc(t.id)}">Editar</button></div>
      <div class="kd" title="${esc(t.d||'')}">${esc(t.d||'—')}</div>
      <div class="kp">${[['S','Single','single'],['D','Dual','dual'],['Q','Quad','quad']].filter(x=>t[x[2]]).map(([a,l,f])=>`<span class="kpc" title="${esc(l+': '+t[f])}"><i>${a}</i>${esc(t[f].split('(')[0].trim())}${t[f].includes('(')?'<small> · '+esc(t[f].split('(')[1].replace(/\)\s*$/,'').replace(/€\/mes promo compra/,'promo'))+'</small>':''}</span>`).join('')}</div>
      <div class="kvs">${kv('Caliport',t.caliport)}${kv('Revisión anual',t.rev)}${kv('Portes',t.portes)}${kv('Sustitución',t.susti)}${showC(t,'min')?kv('Periodo mínimo',t.min):''}${showC(t,'cond')?kv('Diodo usado',t.cond):''}</div>
      <div class="kf">${cnt[t.id]} cliente${cnt[t.id]===1?'':'s'} · ${eqc[t.id]} equipos${t.custom?' · <b>propio</b>':''}</div></div>`).join('')}</div>
+   ${T.some(t=>t.src!=='pdf')?`<div class="kah"><b>Contratos ad-hoc</b><span>condiciones particulares de cada cliente (resumen de contratos o creados a mano) · pincha «Editar» para verlas completas</span></div>
+   <div class="klist">${T.filter(t=>t.src!=='pdf').map(t=>{const pr=[t.single,t.dual,t.quad].filter(Boolean)[0]||'';return `<div class="kr" style="--c:${t.color}"><span class="tb" style="background:${t.color}">${esc(t.short)}</span><b class="kn" title="${esc(t.name)}">${esc(t.name)}</b><span class="kd1" title="${esc(t.d||'')}">${esc(t.d||'—')}</span><span class="kpr" title="${esc(pr)}">${esc(pr.split('(')[0].trim())}</span><span class="kf">${cnt[t.id]} cl · ${eqc[t.id]} eq</span><button class="lnk" type="button" data-te="${esc(t.id)}">Editar</button></div>`}).join('')}</div>`:''}
    <div class="src" style="margin-top:8px">${commons.map(([f,l,v])=>`<b>${esc(l)}</b> (paquetes estándar): ${esc(v)}.`).join(' ')} <b>Sin mantenimiento</b>: Caliport ${esc(NOMANT.caliport)}, revisión ${esc(NOMANT.rev)}, sustitución ${esc(NOMANT.susti)}. Paquetes del PDF «Mantenimientos Leaseir Packages &amp; Caliport» (07/04/2026).</div>`;
   $('#mtPdf').onclick=downloadPdf;
   $('#mtNew').onclick=()=>typeModal(null);
@@ -630,7 +668,7 @@ function renderMT(){
   let rows=all.filter(a=>MTF==='all'||(MTF==='none'?!mtOf(a.c):mtOf(a.c)===MTF));
   rows=sortArr(rows,SORT.mt,{cliente:a=>a.c,n:a=>a.n,cuota:a=>a.cuota,fact:a=>a.li?a.li.fecha:null,tipo:a=>mtOf(a.c)?mtName(mtOf(a.c)):null});
   $('#mtCust').innerHTML=`<table><thead><tr>${th('mt','cliente','Cliente')}${th('mt','n','Equipos','r')}${th('mt','cuota','Cuota/mes','r')}${th('mt','tipo','Contrato')}</tr></thead><tbody>${rows.map(a=>{const i=all.indexOf(a);const k=mtOf(a.c);return `<tr style="cursor:default"><td class="cl" style="max-width:170px"><button class="lnk" type="button" data-mc="${i}" style="color:var(--ink)">${esc(a.c)}</button></td><td class="r">${a.n}</td><td class="r">${eur2(a.cuota)}</td><td><select class="mtsel" data-ms="${i}" aria-label="Contrato de ${esc(a.c)}" style="max-width:128px;${k?'border-color:'+mtColor(k)+';color:'+mtColor(k):''}"><option value="">—</option>${T.map(t=>`<option value="${esc(t.id)}"${k===t.id?' selected':''}>${esc(t.short+' · '+t.name)}</option>`).join('')}</select></td></tr>`}).join('')}</tbody></table>${!rows.length?'<div class="more">Ningún cliente con este filtro.</div>':''}`;
-  $('#mtCust').querySelectorAll('[data-ms]').forEach(s=>s.onchange=()=>{const c=all[+s.dataset.ms].c;RULES.mtc=RULES.mtc||{};if(s.value)RULES.mtc[c]=s.value;else delete RULES.mtc[c];MTDIRTY=true;$('#mtMsg').textContent='Cambios sin guardar';setTimeout(renderMT,0)});
+  $('#mtCust').querySelectorAll('[data-ms]').forEach(s=>s.onchange=()=>{const c=all[+s.dataset.ms].c;RULES.mtc=RULES.mtc||{};RULES.mtc[c]=s.value||'';MTDIRTY=true;$('#mtMsg').textContent='Cambios sin guardar';setTimeout(renderMT,0)});
   $('#mtCust').querySelectorAll('[data-mc]').forEach(b=>b.onclick=()=>custModal(all[+b.dataset.mc].c));
   wireSort($('#mtCust'),'mt',renderMT);
 }
@@ -669,6 +707,121 @@ function typeModal(id){
     try{await saveRules();$('#mtMsg').textContent='Guardado · '+new Date().toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'})}catch(e){$('#mtMsg').textContent='No se ha podido guardar ('+(e&&e.code||'error')+')'}
     closeM();render();setView('mt')};
 }
+/* ---------- Contratos firmados (PDF por cliente) ---------- */
+let CTDOCS=[];let CTMODE='';let CTASSETS=null;let CTF='all';let CTQ='';let CTMSG='';
+const CTIDB={db:null,open(){return new Promise((res,rej)=>{if(this.db)return res(this.db);if(!window.indexedDB)return rej({code:'no_idb'});const r=indexedDB.open('lt-garantias',1);r.onupgradeneeded=()=>{r.result.createObjectStore('contratos',{keyPath:'id'})};r.onsuccess=()=>{this.db=r.result;res(r.result)};r.onerror=()=>rej({code:'no_idb'})})},
+  async tx(mode,fn){const d=await this.open();return new Promise((res,rej)=>{const t=d.transaction('contratos',mode);const s=t.objectStore('contratos');let out;const r=fn(s);if(r)r.onsuccess=()=>{out=r.result};t.oncomplete=()=>res(out);t.onerror=()=>rej(t.error||{code:'idb'})})},
+  all(){return this.tx('readonly',s=>s.getAll())},put(o){return this.tx('readwrite',s=>s.put(o))},del(id){return this.tx('readwrite',s=>s.delete(id))}};
+async function ctInit(){
+  if(window.claude&&window.claude.use){
+    try{if(!db)db=await window.claude.use('db')}catch(e){}
+    if(db){CTMODE='art';
+      try{CTASSETS=await window.claude.use('assets')}catch(e){CTASSETS=null}
+      try{db.collection('contratos').onSnapshot(q=>{CTDOCS=q.docs.map(s=>Object.assign({key:s.id},s.data()));if(VIEW==='ct')renderCT()},()=>{})}catch(e){}
+      return}
+  }
+  CTMODE='idb';
+  try{CTDOCS=(await CTIDB.all()).map(o=>Object.assign({key:o.id},o,{blob:undefined}))}catch(e){CTMODE='none'}
+  if(VIEW==='ct')renderCT();
+}
+const ctCanWrite=()=>CTMODE==='idb'||(CTMODE==='art'&&!!CTASSETS);
+const ctSize=b=>b>=1048576?(b/1048576).toFixed(1).replace('.',',')+' MB':Math.max(1,Math.round(b/1024))+' KB';
+function ctByCust(){const m={};CTDOCS.forEach(d=>{(m[d.cliente]=m[d.cliente]||[]).push(d)});Object.values(m).forEach(a=>a.sort((x,y)=>(y.at||'').localeCompare(x.at||'')));return m}
+function ctRows(){
+  const mc=mtCustomers();const m={};
+  mc.forEach(a=>{m[a.c]={c:a.c,n:a.n,cuota:a.cuota,mt:true}});
+  Object.keys(RULES.mtc||{}).forEach(c=>{if(RULES.mtc[c]&&!m[c])m[c]={c,n:0,cuota:0,mt:false}});
+  CTDOCS.forEach(d=>{if(!m[d.cliente])m[d.cliente]={c:d.cliente,n:0,cuota:0,mt:false}});
+  const by=ctByCust();return Object.values(m).map(r=>Object.assign(r,{docs:by[r.c]||[]}))
+}
+async function ctBlob(d){
+  if(CTMODE==='art'){const r=await fetch('/_blob/'+d.asset);if(!r.ok)throw {code:'404'};return r.blob()}
+  const o=await CTIDB.tx('readonly',s=>s.get(d.key));if(!o||!o.blob)throw {code:'404'};return o.blob
+}
+async function ctView(d){
+  if(CTMODE==='art'){const a=document.createElement('a');a.href='/_blob/'+d.asset;a.target='_blank';a.rel='noopener';document.body.appendChild(a);a.click();a.remove();return}
+  try{const b=await ctBlob(d);const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.target='_blank';a.rel='noopener';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),60000)}catch(e){ctSay('No se encuentra el PDF en este navegador.')}
+}
+async function ctDown(d){
+  let b;try{b=await ctBlob(d)}catch(e){ctSay('No se ha podido leer el PDF.');return}
+  if(window.claude&&window.claude.use){try{const dl=await window.claude.use('downloads');if(dl){await dl.save({filename:d.name,data:b});return}}catch(e){if(e&&(e.code==='declined'||e.code==='rate_limited'))return}}
+  const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download=d.name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000)
+}
+function ctSay(t){CTMSG=t;const el=$('#ctMsg');if(el)el.textContent=t}
+async function ctDelete(d){
+  try{
+    if(CTMODE==='art'){await db.doc('contratos/'+d.key).delete();try{await CTASSETS.delete(d.asset)}catch(e){}}
+    else{await CTIDB.del(d.key);CTDOCS=CTDOCS.filter(x=>x.key!==d.key)}
+    ctSay('Contrato eliminado · '+d.cliente);
+  }catch(e){ctSay('No se ha podido eliminar ('+(e&&e.code||'error')+')')}
+  renderCT()
+}
+function upModal(cliente){
+  const custs=allCustomers().map(a=>a.c);
+  openM(cliente?'Subir contrato · '+cliente:'Subir contrato firmado',`
+   <div class="fgrid">
+    <label class="fl" style="grid-column:1/-1"><span>Cliente</span><input id="upC" list="upCl" value="${esc(cliente||'')}" placeholder="Escribe el cliente" autocomplete="off"${cliente?' readonly':''}><datalist id="upCl">${custs.map(c=>`<option value="${esc(c)}">`).join('')}</datalist></label>
+    <label class="fl" style="grid-column:1/-1"><span>PDF del contrato firmado (máx. 20 MB)</span><input id="upF" type="file" accept="application/pdf,.pdf"></label>
+    <label class="fl"><span>Fecha de firma</span><input id="upD" type="date"></label>
+    <label class="fl" style="grid-column:span 2"><span>Nota (opcional)</span><input id="upN" placeholder="p. ej. Renovación 2026, anexo de precios"></label>
+   </div>
+   <div class="note" style="margin-top:8px">${CTMODE==='art'?'El PDF se guarda en el panel y lo ven todos los que tienen acceso.':'En la versión del portal el PDF se guarda solo en este navegador: otro ordenador no lo verá.'}</div>
+   <div class="row2"><span class="note" id="upMsg" style="margin-right:auto;align-self:center"></span><button class="btn" type="button" id="upX">Cancelar</button><button class="btn alt" type="button" id="upOk">Subir</button></div>`);
+  $('#upX').onclick=()=>closeM();
+  $('#upOk').onclick=async()=>{
+    const c=$('#upC').value.trim();const f=$('#upF').files[0];const msg=t=>{$('#upMsg').textContent=t};
+    if(!c){msg('Falta el cliente.');$('#upC').focus();return}
+    if(!f){msg('Elige el PDF.');return}
+    if(!/\.pdf$/i.test(f.name)&&f.type!=='application/pdf'){msg('Tiene que ser un PDF.');return}
+    if(f.size>20*1048576){msg('Pesa más de 20 MB.');return}
+    const btn=$('#upOk');btn.disabled=true;msg('Subiendo…');
+    const meta={cliente:c,name:f.name,size:f.size,firma:$('#upD').value||'',nota:$('#upN').value.trim(),at:new Date().toISOString()};
+    try{
+      if(CTMODE==='art'){
+        const r=await CTASSETS.upload(f,{type:'application/pdf'});
+        await db.collection('contratos').add(Object.assign(meta,{asset:r.id,size:r.sizeBytes}));
+      }else{
+        const id='k'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+        await CTIDB.put(Object.assign({id,blob:f},meta));CTDOCS.push(Object.assign({key:id},meta));
+      }
+      ctSay('Contrato subido · '+c);closeM();renderCT();
+    }catch(e){btn.disabled=false;const k=e&&e.code;msg(k==='too_large'?'Pesa demasiado (máx. 20 MB).':k==='unsupported_type'?'El archivo no es un PDF válido.':k==='quota_or_state'?'El panel no tiene más espacio.':k==='rate_limited'?'Demasiados intentos, espera un momento.':'No se ha podido subir ('+(k||'error')+').')}
+  };
+}
+function ctHist(c){
+  const ds=ctByCust()[c]||[];const w=ctCanWrite();
+  openM('Contratos · '+c,`<div class="mt" style="max-height:60vh"><table><thead><tr><th>Archivo</th><th>Firma</th><th>Subido</th><th class="r">Tamaño</th><th>Nota</th><th></th></tr></thead><tbody>${ds.map((d,i)=>`<tr style="cursor:default"><td class="cl" style="max-width:220px">${esc(d.name)}${i===0?' <span class="note">(vigente)</span>':''}</td><td>${d.firma?fd(pd(d.firma)):'—'}</td><td>${fd(new Date(d.at))}</td><td class="r">${ctSize(d.size||0)}</td><td class="cl" style="max-width:160px">${esc(d.nota||'')}</td><td style="white-space:nowrap"><button class="lnk" type="button" data-hv="${i}">Ver</button> · <button class="lnk" type="button" data-hd="${i}">Descargar</button>${w?` · <button class="lnk" type="button" data-hx="${i}" style="color:var(--bad)">Eliminar</button>`:''}</td></tr>`).join('')}</tbody></table></div>
+   <div class="row2"><span class="note" style="margin-right:auto;align-self:center">${ds.length} documento${ds.length===1?'':'s'}. El más reciente es el vigente.</span>${w?'<button class="btn alt" type="button" id="hUp">Subir otro</button>':''}</div>`,true);
+  const B=$('#mdB');
+  B.querySelectorAll('[data-hv]').forEach(b=>b.onclick=()=>ctView(ds[+b.dataset.hv]));
+  B.querySelectorAll('[data-hd]').forEach(b=>b.onclick=()=>ctDown(ds[+b.dataset.hd]));
+  B.querySelectorAll('[data-hx]').forEach(b=>b.onclick=async()=>{if(b.dataset.ok!=='1'){b.dataset.ok='1';b.textContent='¿Seguro? pulsa otra vez';return}closeM();await ctDelete(ds[+b.dataset.hx])});
+  const up=$('#hUp');if(up)up.onclick=()=>upModal(c);
+}
+function renderCT(){
+  const all=ctRows();const w=ctCanWrite();
+  const withD=all.filter(r=>r.docs.length).length,mtNo=all.filter(r=>r.mt&&!r.docs.length).length;
+  $('#ctSum').innerHTML=`<span><b>${all.length}</b> clientes</span><span><b>${withD}</b> con contrato subido</span><span><b style="color:${mtNo?'var(--sin)':'inherit'}">${mtNo}</b> pagan mantenimiento sin contrato subido</span>`;
+  $('#ctChips').innerHTML=[['all','Todos',all.length],['sin','Sin contrato',all.filter(r=>!r.docs.length).length],['con','Con contrato',withD]].map(([k,l,n])=>`<button class="chip${CTF===k?' on':''}" type="button" data-cf="${k}">${l} <b>${n}</b></button>`).join('');
+  $('#ctChips').querySelectorAll('[data-cf]').forEach(b=>b.onclick=()=>{CTF=b.dataset.cf;renderCT()});
+  const nz=x=>String(x||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();const qn=nz(CTQ);
+  let rows=all.filter(r=>(CTF==='all'||(CTF==='sin'?!r.docs.length:r.docs.length))&&(!qn||nz(r.c).includes(qn)));
+  rows=sortArr(rows,SORT.ct,{cliente:r=>r.c,n:r=>r.n,cuota:r=>r.cuota,tipo:r=>mtOf(r.c)?mtName(mtOf(r.c)):null,firma:r=>r.docs[0]?r.docs[0].firma||null:null,subido:r=>r.docs[0]?r.docs[0].at:null});
+  const modeNote=CTMODE==='art'?(w?'Los PDF se guardan en el panel y los ven todos los que tienen acceso.':'Solo lectura: para subir o borrar contratos necesitas permiso de edición del panel.'):CTMODE==='idb'?'Versión del portal: los PDF se guardan solo en este navegador (no se comparten con otros ordenadores ni se suben a GitHub).':'Este navegador no permite guardar archivos.';
+  $('#ctNote').textContent=modeNote;
+  $('#ctNew').hidden=!w;
+  $('#ctT').innerHTML=`<table><thead><tr>${th('ct','cliente','Cliente')}${th('ct','n','Equipos en mant.','r')}${th('ct','cuota','Cuota/mes','r')}${th('ct','tipo','Contrato')}<th>PDF firmado</th>${th('ct','firma','Firma')}${th('ct','subido','Subido')}<th></th></tr></thead><tbody>${rows.map(r=>{const i=all.indexOf(r);const d=r.docs[0];const k=mtOf(r.c);return `<tr style="cursor:default"><td class="cl" style="max-width:220px"><button class="lnk" type="button" data-cc="${i}" style="color:var(--ink)">${esc(r.c)}</button></td><td class="r">${r.n||'—'}</td><td class="r">${r.cuota?eur2(r.cuota):'—'}</td><td>${k?mtBadge(k)+' <span class="note">'+esc(mtName(k))+'</span>':'<span class="num0">—</span>'}</td><td class="cl" style="max-width:220px">${d?`<button class="lnk" type="button" data-cv="${i}">${esc(d.name)}</button>${r.docs.length>1?` <button class="lnk" type="button" data-ch="${i}" style="font-weight:600">+${r.docs.length-1}</button>`:''}`:(r.mt?'<b style="color:var(--bad)">Falta</b>':'<span class="num0">—</span>')}</td><td>${d&&d.firma?fd(pd(d.firma)):'—'}</td><td>${d?fd(new Date(d.at)):'—'}</td><td style="white-space:nowrap;text-align:right">${d?`<button class="lnk" type="button" data-cd="${i}">Descargar</button>`:''}${w?`${d?' · ':''}<button class="lnk" type="button" data-cu="${i}">${d?'Sustituir':'Subir PDF'}</button>`:''}${d&&w?` · <button class="lnk" type="button" data-cx="${i}" style="color:var(--bad)">Eliminar</button>`:''}</td></tr>`}).join('')}</tbody></table>${!rows.length?'<div class="more">Ningún cliente con este filtro.</div>':''}`;
+  const T=$('#ctT');
+  T.querySelectorAll('[data-cc]').forEach(b=>b.onclick=()=>custModal(all[+b.dataset.cc].c));
+  T.querySelectorAll('[data-cv]').forEach(b=>b.onclick=()=>ctView(all[+b.dataset.cv].docs[0]));
+  T.querySelectorAll('[data-ch]').forEach(b=>b.onclick=()=>ctHist(all[+b.dataset.ch].c));
+  T.querySelectorAll('[data-cd]').forEach(b=>b.onclick=()=>ctDown(all[+b.dataset.cd].docs[0]));
+  T.querySelectorAll('[data-cu]').forEach(b=>b.onclick=()=>upModal(all[+b.dataset.cu].c));
+  T.querySelectorAll('[data-cx]').forEach(b=>b.onclick=()=>{if(b.dataset.ok!=='1'){b.dataset.ok='1';b.textContent='¿Seguro? pulsa otra vez';return}ctDelete(all[+b.dataset.cx].docs[0])});
+  wireSort(T,'ct',renderCT);
+  $('#ctMsg').textContent=CTMSG;
+}
+
 async function downloadPdf(){
   const name='Mantenimientos Leaseir - Packages y Caliport.pdf';
   const bin=Uint8Array.from(atob(D.pdf),c=>c.charCodeAt(0));
@@ -727,7 +880,7 @@ function renderAcc(){
   $('#accT').querySelectorAll('tbody tr').forEach(tr=>tr.onclick=ev=>{if(ev.target.closest('input,select,.org,.lnk'))return;const b=tr.querySelector('[data-go]');const c=byI(b.dataset.go);custModal(c,false,HIT[c]&&HIT[c][0])});
   wireSort($('#accT'),'acc',renderAcc);
   $('#accT').querySelectorAll('[data-fc]').forEach(inp=>{inp.onclick=ev=>ev.stopPropagation();inp.onchange=()=>{const c=all[+inp.dataset.fc].c;const v=parseInt(inp.value,10);RULES.fullm=RULES.fullm||{};RULES.fullm[c]=isNaN(v)||v<0?0:v;MTDIRTY=true;setTimeout(()=>{render();renderAcc()},0)}});
-  $('#accT').querySelectorAll('[data-am]').forEach(s=>{s.onclick=ev=>ev.stopPropagation();s.onchange=()=>{const c=all[+s.dataset.am].c;RULES.mtc=RULES.mtc||{};if(s.value)RULES.mtc[c]=s.value;else delete RULES.mtc[c];MTDIRTY=true;setTimeout(renderAcc,0)}});
+  $('#accT').querySelectorAll('[data-am]').forEach(s=>{s.onclick=ev=>ev.stopPropagation();s.onchange=()=>{const c=all[+s.dataset.am].c;RULES.mtc=RULES.mtc||{};RULES.mtc[c]=s.value||'';MTDIRTY=true;setTimeout(renderAcc,0)}});
   $('#accT').querySelectorAll('[data-av]').forEach(b=>b.onclick=ev=>{ev.stopPropagation();AV.dias=90;avisoModal(byI(b.dataset.av))});
   const nch=Object.keys(DRAFT).length+(MTDIRTY?1:0);
   $('#aSave').disabled=!nch;
@@ -770,7 +923,7 @@ const RKEY='lt-garantias-reglas';
 async function saveRules(){const body={def:RULES.def,rules:RULES.rules,manual:RULES.manual||{},gone:RULES.gone||[],full:RULES.full||[],fullm:RULES.fullm||{},types:types(),mtc:RULES.mtc||{},updatedAt:new Date().toISOString()};
   if(db){await db.doc('config/garantias').set(body);RULES_SRC='guardadas en el panel '+new Date().toLocaleString('es-ES');return}
   localStorage.setItem(RKEY,JSON.stringify(body));RULES_SRC='guardadas en este navegador '+new Date().toLocaleString('es-ES')}
-function loadTypes(d){if(Array.isArray(d.types)&&d.types.length){const OLD={'#2E6BDE':'#3A93A8','#17915E':'#0F7A63','#5B35C4':'#074C5B','#D4861A':'#C98A1E','#C2410C':'#B3363F','#0E7490':'#5C7C85','#9D174D':'#8A5A9E','#6B7280':'#05272D'};return d.types.map(t=>Object.assign({},t,{color:OLD[t.color]||t.color}))}const base=JSON.parse(JSON.stringify(DEFAULT_TYPES));
+function loadTypes(d){if(Array.isArray(d.types)&&d.types.length){const OLD={'#2E6BDE':'#3A93A8','#17915E':'#0F7A63','#5B35C4':'#074C5B','#D4861A':'#C98A1E','#C2410C':'#B3363F','#0E7490':'#5C7C85','#9D174D':'#8A5A9E','#6B7280':'#05272D'};const L=d.types.map(t=>Object.assign({},t,{color:OLD[t.color]||t.color}));DEFAULT_TYPES.forEach(t=>{if(!L.find(x=>x.id===t.id))L.push(JSON.parse(JSON.stringify(t)))});return L}const base=JSON.parse(JSON.stringify(DEFAULT_TYPES));
   const used=new Set(Object.values(d.mtc||{}));['A','B','C','D'].forEach((k,i)=>{if(used.has(k)){const o=(d.mt||{})[k]||{};base.push({id:k,short:k,color:TCOLORS[4+i],name:o.t||('Tipo '+k),d:o.d||'',custom:true})}});return base}
 function loadRulesObj(d){if(!d||!Array.isArray(d.rules))return false;RULES={def:(d.def===0||d.def)?+d.def:12,rules:d.rules.map(r=>({p:String(r.p||''),m:+r.m||0})),manual:Object.fromEntries(Object.entries(d.manual||{}).map(([k,v])=>[k,+v||0])),gone:Array.isArray(d.gone)?d.gone.map(String):DEFAULT_RULES.gone.slice(),fullm:Object.fromEntries(Object.entries(d.fullm||{}).map(([k,v])=>[k,+v||0])),full:Array.isArray(d.full)?d.full.map(r=>({p:String(r.p||''),m:+r.m||0})):DEFAULT_RULES.full.map(r=>({...r})),types:loadTypes(d),mtc:Object.assign({},d.mtc||{})};return true}
 try{const s=localStorage.getItem(RKEY);if(s&&loadRulesObj(JSON.parse(s)))RULES_SRC='guardadas en este navegador'}catch(e){}
@@ -824,6 +977,7 @@ $('#q').addEventListener('input',e=>{F.q=e.target.value;renderList()});
 $('#asof').textContent=`Ventas: ${D.src.mod} · Holded: ${fd(HOLDED_DATE)} · ${nf.format(D.eq.length)} series`;
 render();
 if(VIEW==='mt')renderMT();
+ctInit();
 
 (async()=>{if(!window.claude||!window.claude.use)return;try{db=await window.claude.use('db')}catch(e){db=null}
   if(!db)return;
