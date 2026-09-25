@@ -376,7 +376,10 @@ let EV=[];
 function recompute(){EV=D.eq.map(e=>evalEq(e))}
 
 // ---- alerts
-const HOLCOL=new Set(['mg','own','dup','rpos','rdup','hnocs','cese','qa']);
+const HOLCOL=new Set(['mg','own','dup','rpos','rdup','cese','qa']);
+const _nt=s=>new Set(String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/\(.*?\)/g,' ').match(/[a-z]{3,}/g)?.filter(x=>!['laser','centro','centros','depilacion','estetica','clinica','medicina','slu'].includes(x))||[]);
+// Si quien paga hoy la cuota no es el titular del contrato antiguo, el contrato viejo terminó y manda la cuota de Holded
+const samePayer=(payer,titular)=>{if(!titular)return true;const a=_nt(payer),b=_nt(titular);return [...b].some(x=>a.has(x))};
 function alerts(){
   const A=[];
   const inGarMant=EV.filter(o=>o.ma&&o.end&&TODAY<=o.end);
@@ -393,10 +396,8 @@ function alerts(){
   A.push({k:'rpos',t:'Renting facturado a otro cliente',d:'La factura de renting va a un cliente distinto del que figura en ventas: manda la factura',items:EV.filter(o=>o.e.rt&&!o.e.rt.ok)});
   A.push({k:'rdup',t:'Equipo facturado en renting a dos clientes',d:'El mismo nº de serie aparece en facturas de renting de clientes distintos',items:EV.filter(o=>o.e.rt&&o.e.rt.dup)});
   A.push({k:'run',t:'Rentings de Holded que no están en ventas',d:'Facturas de renting de agosto y septiembre cuya serie no está en los ficheros de ventas',rows2:D.rent_un||[]});
-  A.push({k:'csnof',t:'Con contrato en el resumen pero sin cuota en Holded',d:'El resumen de contratos los da en vigor y ninguna factura de mantenimiento reciente los incluye',items:EV.filter(o=>o.e.cs&&!o.e.cs.c&&(!o.e.cs.st||o.e.cs.st==='Con mantenimiento')&&!o.e.cs.imp&&!o.ma&&!o.e.ina&&o.st!=='otro')});
-  A.push({k:'hnocs',t:'Con cuota en Holded pero fuera del resumen de contratos',d:'Se facturan cada mes y no figuran en ninguna pestaña del resumen',items:EV.filter(o=>o.ma&&o.e.m&&!o.e.cs)});
-  A.push({k:'cese',t:'Baja en el resumen pero se sigue facturando',d:'El resumen tiene fecha de cese y Holded sigue emitiendo la cuota',items:EV.filter(o=>o.e.cs&&o.e.cs.c&&o.ma)});
-  A.push({k:'imp',t:'Impagados según el resumen de contratos',d:'Marcados como impagado o «baja y deben» en el resumen',items:EV.filter(o=>o.e.cs&&o.e.cs.imp)});
+  A.push({k:'csnof',t:'Con contrato en el resumen pero sin cuota en Holded',d:'El resumen de contratos los da en vigor y ninguna factura de mantenimiento reciente los incluye',items:EV.filter(o=>o.e.cs&&!o.e.cs.c&&!o.e.cs.cx&&(!o.e.cs.st||o.e.cs.st==='Con mantenimiento')&&!o.e.cs.imp&&!o.ma&&!o.e.ina&&o.st!=='otro')});
+  A.push({k:'cese',t:'Baja en el resumen pero se sigue facturando',d:'El resumen tiene fecha de cese y Holded sigue emitiendo la cuota',items:EV.filter(o=>o.e.cs&&(o.e.cs.c||o.e.cs.cx)&&o.ma&&samePayer(D.cust[o.e.m.ci],o.e.cs.o))});
   const fut=EV.filter(o=>o.d&&o.d>TODAY&&!o.e.ina);
   A.push({k:'fut',t:'Fecha de salida en el futuro',d:'La fecha de salida del equipo (columna Y) es posterior a hoy: la garantía sale mal calculada',items:fut});
   const stop=Object.keys(invByCi).map(ci=>lastInv(ci)).filter(v=>v&&days(pd(v.fecha),HOLDED_DATE)>ACTIVE_DAYS&&!/valoraci/i.test(v.desc));
@@ -538,7 +539,7 @@ function eqModal(o){
     h+=`<div class="sec"><h4>Resumen de contratos</h4><div class="steps">
      ${c.s?`<span class="k">Contrato</span><span>${mtBadge(c.s)} ${esc(mtName(c.s))}</span>`:''}
      ${c.vt||c.v?`<span class="k">En vigor desde</span><span>${esc(c.v&&/^\d{4}-\d{2}-\d{2}$/.test(c.v)&&!c.vt?fd(pd(c.v)):(c.vt||fd(pd(c.v))))}</span>`:''}
-     ${c.c?`<span class="k">Baja</span><span><b style="color:var(--bad)">${fd(pd(c.c))}</b></span>`:''}
+     ${c.c||c.cx?`<span class="k">Baja</span><span><b style="color:var(--bad)">${c.c?fd(pd(c.c)):'Sí'}</b>${c.cx?` <span class="note">(«Fecha Cese»: ${esc(c.cx)})</span>`:''}</span>`:''}
      ${c.ce?`<span class="k">Centro</span><span>${esc(c.ce)}</span>`:''}
      ${c.st?`<span class="k">Estado en el resumen</span><span>${esc(c.st)}</span>`:''}
      ${c.o?`<span class="k">Titular en el resumen</span><span>${esc(c.o)}</span>`:''}
