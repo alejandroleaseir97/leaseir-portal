@@ -324,7 +324,7 @@ const pd=s=>s?new Date(s+'T12:00:00'):null;
 const addM=(d,m)=>{const x=new Date(d);const day=x.getDate();x.setDate(1);x.setMonth(x.getMonth()+m);const last=new Date(x.getFullYear(),x.getMonth()+1,0).getDate();x.setDate(Math.min(day,last));return x};
 const days=(a,b)=>Math.round((b-a)/864e5);
 const MES=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
-const ST={garantia:{l:'En garantía',c:'var(--gar)',p:'p-garantia'},mant:{l:'Mantenimiento',c:'var(--man)',p:'p-mant'},sincob:{l:'Sin cobertura',c:'var(--sin)',p:'p-sincob'},renting:{l:'Renting',c:'var(--ren)',p:'p-renting'},rsinf:{l:'Renting sin factura',c:'var(--bad)',p:'p-rsinf'},otro:{l:'Baja / demo / sin fecha',c:'var(--gry)',p:'p-otro'}};
+const ST={garantia:{l:'En garantía',c:'var(--gar)',p:'p-garantia'},mant:{l:'Mantenimiento',c:'var(--man)',p:'p-mant'},sincob:{l:'Sin cobertura',c:'var(--sin)',p:'p-sincob'},renting:{l:'Renting',c:'var(--ren)',p:'p-renting'},rsinf:{l:'Renting sin factura',c:'var(--bad)',p:'p-rsinf'},otro:{l:'Baja o fin de renting',c:'var(--gry)',p:'p-otro'}};
 
 // ---- ordenación por columnas
 const SORT={eq:null,acc:null,cm:null,rl:null,km:null,kmk:null,mt:null,ct:null};
@@ -366,7 +366,7 @@ function evalEq(e,at){
   else if(goneFor(e.c)){o.st='otro';o.why='Cliente que ya no existe («'+goneFor(e.c)+'»): el equipo no tiene posición actual'}
   else if(e.ca==='Demo/Backup'){o.st='otro';o.why='Equipo de demo o backup'}
   else if(ma){o.st=(o.end&&at<=o.end)?'garantia':'mant';o.why=o.st==='mant'?'Fuera de garantía y con cuota de mantenimiento en Holded':'En garantía y además con cuota de mantenimiento'}
-  else if(e.ca==='Renting/Leasing'){o.st='rsinf';o.why='En ventas figura en renting, pero no tiene factura de renting en agosto ni septiembre'}
+  else if(e.ca==='Renting/Leasing'){o.st='otro';o.why=e.fin||'Renting terminado: ventas lo da en renting, pero ya no se factura (ni en agosto ni en septiembre)'}
   else if(!d){o.st='otro';o.why='Sin fecha de venta en el fichero'}
   else if(at<=o.end){o.st='garantia';o.why='Dentro del plazo de garantía'}
   else {o.st='sincob';o.why='Fuera de garantía y sin cuota de mantenimiento'}
@@ -388,7 +388,6 @@ function alerts(){
   A.push({k:'un',t:'Cuotas de mantenimiento que no se pueden casar con un equipo',d:'Líneas de factura de Holded sin nº de serie, o cuyo equipo no está (o ya no está) a nombre del cliente en ventas. Dentro, el motivo de cada una',rows:D.un});
   const venc=Object.keys(invByCi).map(ci=>lastInv(ci)).filter(v=>v&&v.estado==='Vencida');
   A.push({k:'venc',t:'Última cuota vencida sin cobrar',d:'Clientes cuya última factura de mantenimiento está vencida',rows:venc});
-  A.push({k:'rsinf',t:'Rentings sin facturar en agosto y septiembre',d:'Ventas los da en renting, pero no aparecen en ninguna factura de renting de agosto ni septiembre',items:EV.filter(o=>o.st==='rsinf')});
   const qi=new Set((D.qa||[]).map(q=>q.i));
   A.push({k:'qa',t:'Casados a revisar',d:'Series de facturas que no cuadran del todo con el parque (pareja consola y pieza de mano que no coincide, factura sin nº de serie o renting que no basta para cambiar de cliente). Pincha cada equipo para ver el motivo',items:EV.filter(o=>qi.has(EQI.get(o.e)))});
   A.push({k:'rpos',t:'Renting facturado a otro cliente',d:'La factura de renting va a un cliente distinto del que figura en ventas: manda la factura',items:EV.filter(o=>o.e.rt&&!o.e.rt.ok)});
