@@ -127,7 +127,7 @@ tr.dirty td{background:#FFF9EC}
 .o-def{background:var(--sin-s);color:#A2620C;cursor:pointer}
 .o-def:hover{filter:brightness(.95)}
 .num0{color:#C2C8D0}
-.mtv{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1.1fr);gap:12px;min-height:0}
+.mtv{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);gap:12px;min-height:0}
 table.cmp{font-size:12px}
 table.cmp td,table.cmp th{white-space:normal;vertical-align:top}
 table.cmp td{min-width:120px;line-height:1.35}
@@ -140,7 +140,20 @@ table.cmp th.cmpr{position:sticky;left:0;background:var(--card);text-transform:n
 .fl{display:flex;flex-direction:column;gap:4px;font-size:11.5px;color:var(--mut);font-weight:700}
 .fl input,.fl textarea{border:1px solid var(--line);border-radius:10px;padding:7px 10px;font:inherit;font-size:13px;font-weight:500;color:var(--ink);background:#fff;width:100%}
 .fl input:focus,.fl textarea:focus{outline:2px solid var(--acc);outline-offset:1px}
-.sw{width:24px;height:24px;border-radius:8px;border:2px solid transparent;cursor:pointer}
+.kgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(225px,1fr));gap:10px;align-items:start}
+.kc{background:var(--soft);border-radius:14px;padding:10px 12px;display:flex;flex-direction:column;gap:6px;border-top:4px solid var(--c)}
+.kh{display:flex;align-items:center;gap:8px}
+.kh .kn{flex:1;font-size:13px;line-height:1.2}
+.kd{font-size:12px;line-height:1.35;color:var(--ink);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.kp{display:flex;flex-wrap:wrap;gap:4px}
+.kpc{background:#fff;border-radius:8px;padding:2px 7px;font-size:11.5px;font-weight:700;font-variant-numeric:tabular-nums}
+.kpc i{font-style:normal;color:var(--mut);margin-right:4px;font-weight:800}
+.kvs{display:grid;grid-template-columns:1fr 1fr;gap:3px 10px}
+.kv{font-size:11px;line-height:1.3;min-width:0}.kv span{color:var(--mut);display:block}.kv b{font-weight:600;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
+.kpc small{font-weight:600;color:var(--mut);font-size:10.5px}
+.kh .kn{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.kf{font-size:11px;color:var(--mut);margin-top:auto}
+.sw{width:24px;height:24px;height:24px;border-radius:8px;border:2px solid transparent;cursor:pointer}
 .sw.on{border-color:var(--ink)}
 @media (max-width:700px){.fgrid{grid-template-columns:1fr}}
 
@@ -587,10 +600,18 @@ function renderMT(){
   const all=mtCustomers();const T=types();
   const cnt={none:0};const eqc={};T.forEach(t=>{cnt[t.id]=0;eqc[t.id]=0});all.forEach(a=>{const k=mtOf(a.c);if(k){cnt[k]++;eqc[k]+=a.n}else cnt.none++});
   const cols=[Object.assign({ref:true},NOMANT),...T];
-  $('#mtTypes').innerHTML=`<div class="tools" style="margin-bottom:10px"><button class="btn" type="button" id="mtPdf">⤓ Descargar PDF de los paquetes</button><button class="btn alt" type="button" id="mtNew">+ Nuevo tipo de contrato</button></div>
-   <div class="mt" style="max-height:none;border:0"><table class="cmp"><thead><tr><th style="min-width:120px;position:sticky;left:0;z-index:2"></th>${cols.map(t=>t.ref?`<th class="cmph ref">${esc(t.name)}<div class="note">referencia</div></th>`:`<th class="cmph"><span class="tb" style="background:${t.color}">${esc(t.short)}</span><div class="cn">${esc(t.name)}</div><div class="note">${cnt[t.id]} cliente${cnt[t.id]===1?'':'s'} · ${eqc[t.id]} equipos${t.custom?' · <b>propio</b>':''}</div><button class="lnk" type="button" data-te="${esc(t.id)}">Editar</button></th>`).join('')}</tr></thead>
-   <tbody>${TFIELDS.map(([f,l])=>`<tr style="cursor:default"><th scope="row" class="cmpr">${esc(l)}</th>${cols.map(t=>`<td class="${t.ref?'ref':''}${f==='d'?' cd':''}">${esc(t[f]||'—')}</td>`).join('')}</tr>`).join('')}</tbody></table></div>
-   <div class="src">Paquetes estándar del PDF «Mantenimientos Leaseir Packages &amp; Caliport» (SAT-Leaseir, versión del 07/04/2026). Los contratos propios los crea cualquiera con «Nuevo tipo de contrato».</div>`;
+  const P=T.filter(t=>t.src==='pdf');const same=f=>P.length&&P.every(t=>(t[f]||'')===(P[0][f]||''));
+  const commons=[['min','Periodo mínimo'],['cond','Diodo usado']].filter(([f])=>same(f)&&P[0][f]).map(([f,l])=>[f,l,P[0][f]]);
+  const showC=(t,f)=>{const c=commons.find(x=>x[0]===f);return t[f]&&(!c||t[f]!==c[2])};
+  const kv=(l,v)=>v?`<div class="kv" title="${esc(l+': '+v)}"><span>${esc(l)}</span><b>${esc(v)}</b></div>`:'';
+  $('#mtTypes').innerHTML=`<div class="tools" style="margin-bottom:8px"><button class="btn" type="button" id="mtPdf">⤓ Descargar PDF de los paquetes</button><button class="btn alt" type="button" id="mtNew">+ Nuevo tipo de contrato</button></div>
+   <div class="kgrid">${T.map(t=>`<div class="kc" style="--c:${t.color}">
+     <div class="kh"><span class="tb" style="background:${t.color}">${esc(t.short)}</span><b class="kn">${esc(t.name)}</b><button class="lnk" type="button" data-te="${esc(t.id)}">Editar</button></div>
+     <div class="kd" title="${esc(t.d||'')}">${esc(t.d||'—')}</div>
+     <div class="kp">${[['S','Single','single'],['D','Dual','dual'],['Q','Quad','quad']].filter(x=>t[x[2]]).map(([a,l,f])=>`<span class="kpc" title="${esc(l+': '+t[f])}"><i>${a}</i>${esc(t[f].split('(')[0].trim())}${t[f].includes('(')?'<small> · '+esc(t[f].split('(')[1].replace(/\)\s*$/,'').replace(/€\/mes promo compra/,'promo'))+'</small>':''}</span>`).join('')}</div>
+     <div class="kvs">${kv('Caliport',t.caliport)}${kv('Revisión anual',t.rev)}${kv('Portes',t.portes)}${kv('Sustitución',t.susti)}${showC(t,'min')?kv('Periodo mínimo',t.min):''}${showC(t,'cond')?kv('Diodo usado',t.cond):''}</div>
+     <div class="kf">${cnt[t.id]} cliente${cnt[t.id]===1?'':'s'} · ${eqc[t.id]} equipos${t.custom?' · <b>propio</b>':''}</div></div>`).join('')}</div>
+   <div class="src" style="margin-top:8px">${commons.map(([f,l,v])=>`<b>${esc(l)}</b> (paquetes estándar): ${esc(v)}.`).join(' ')} <b>Sin mantenimiento</b>: Caliport ${esc(NOMANT.caliport)}, revisión ${esc(NOMANT.rev)}, sustitución ${esc(NOMANT.susti)}. Paquetes del PDF «Mantenimientos Leaseir Packages &amp; Caliport» (07/04/2026).</div>`;
   $('#mtPdf').onclick=downloadPdf;
   $('#mtNew').onclick=()=>typeModal(null);
   $('#mtTypes').querySelectorAll('[data-te]').forEach(b=>b.onclick=()=>typeModal(b.dataset.te));
@@ -598,11 +619,12 @@ function renderMT(){
   $('#mtChips').querySelectorAll('[data-mf]').forEach(b=>b.onclick=()=>{MTF=b.dataset.mf;renderMT()});
   let rows=all.filter(a=>MTF==='all'||(MTF==='none'?!mtOf(a.c):mtOf(a.c)===MTF));
   rows=sortArr(rows,SORT.mt,{cliente:a=>a.c,n:a=>a.n,cuota:a=>a.cuota,fact:a=>a.li?a.li.fecha:null,tipo:a=>mtOf(a.c)?mtName(mtOf(a.c)):null});
-  $('#mtCust').innerHTML=`<table><thead><tr>${th('mt','cliente','Cliente')}${th('mt','n','Equipos','r')}${th('mt','cuota','Cuota/mes','r')}${th('mt','fact','Últ. factura')}${th('mt','tipo','Contrato')}</tr></thead><tbody>${rows.map(a=>{const i=all.indexOf(a);const k=mtOf(a.c);return `<tr style="cursor:default"><td class="cl" style="max-width:170px"><button class="lnk" type="button" data-mc="${i}" style="color:var(--ink)">${esc(a.c)}</button></td><td class="r">${a.n}</td><td class="r">${eur2(a.cuota)}</td><td>${invCell(a.li,true)}</td><td><select class="mtsel" data-ms="${i}" aria-label="Contrato de ${esc(a.c)}" style="max-width:128px;${k?'border-color:'+mtColor(k)+';color:'+mtColor(k):''}"><option value="">—</option>${T.map(t=>`<option value="${esc(t.id)}"${k===t.id?' selected':''}>${esc(t.short+' · '+t.name)}</option>`).join('')}</select></td></tr>`}).join('')}</tbody></table>${!rows.length?'<div class="more">Ningún cliente con este filtro.</div>':''}`;
+  $('#mtCust').innerHTML=`<table><thead><tr>${th('mt','cliente','Cliente')}${th('mt','n','Equipos','r')}${th('mt','cuota','Cuota/mes','r')}${th('mt','tipo','Contrato')}</tr></thead><tbody>${rows.map(a=>{const i=all.indexOf(a);const k=mtOf(a.c);return `<tr style="cursor:default"><td class="cl" style="max-width:170px"><button class="lnk" type="button" data-mc="${i}" style="color:var(--ink)">${esc(a.c)}</button></td><td class="r">${a.n}</td><td class="r">${eur2(a.cuota)}</td><td><select class="mtsel" data-ms="${i}" aria-label="Contrato de ${esc(a.c)}" style="max-width:128px;${k?'border-color:'+mtColor(k)+';color:'+mtColor(k):''}"><option value="">—</option>${T.map(t=>`<option value="${esc(t.id)}"${k===t.id?' selected':''}>${esc(t.short+' · '+t.name)}</option>`).join('')}</select></td></tr>`}).join('')}</tbody></table>${!rows.length?'<div class="more">Ningún cliente con este filtro.</div>':''}`;
   $('#mtCust').querySelectorAll('[data-ms]').forEach(s=>s.onchange=()=>{const c=all[+s.dataset.ms].c;RULES.mtc=RULES.mtc||{};if(s.value)RULES.mtc[c]=s.value;else delete RULES.mtc[c];MTDIRTY=true;$('#mtMsg').textContent='Cambios sin guardar';setTimeout(renderMT,0)});
   $('#mtCust').querySelectorAll('[data-mc]').forEach(b=>b.onclick=()=>custModal(all[+b.dataset.mc].c));
   wireSort($('#mtCust'),'mt',renderMT);
 }
+function autoShort(n){const w=n.split(/[^A-Za-zÁÉÍÓÚÑáéíóúñ0-9]+/).filter(x=>x&&!/^(contrato|mantenimiento|de|del|la|el|los|las|y|por|para|particular|pack|tipo)$/i.test(x));if(!w.length)return n.replace(/[^A-Za-z0-9]/g,'').slice(0,4);return w.length===1?w[0].slice(0,4):w.map(x=>x[0]).join('').slice(0,4)}
 function typeModal(id){
   const isNew=!id;
   const t=isNew?{id:'c'+Date.now().toString(36),short:'',color:TCOLORS[types().length%TCOLORS.length],name:'',d:'',single:'',dual:'',quad:'',caliport:'',rev:'',portes:'',susti:'',cond:'',min:'',custom:true}:Object.assign({},typeById(id));
@@ -631,7 +653,7 @@ function typeModal(id){
     const v=f=>{const el=document.getElementById('tf_'+f);return el?el.value:''};
     const name=v('name').trim();
     if(!name){$('#tfMsg').textContent='Ponle un nombre.';$('#tf_name').focus();return}
-    const nt=Object.assign(t,{name,short:(v('short').trim()||name.replace(/[^A-Za-zÁÉÍÓÚÑ0-9]/g,'').slice(0,4)).toUpperCase().slice(0,5),color});
+    const nt=Object.assign(t,{name,short:(v('short').trim()||autoShort(name)).toUpperCase().slice(0,5),color});
     TFIELDS.forEach(([f])=>{nt[f]=v(f).trim()});
     const T=types();const i=T.findIndex(x=>x.id===nt.id);if(i>=0)T[i]=nt;else T.push(nt);
     try{await saveRules();$('#mtMsg').textContent='Guardado · '+new Date().toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'})}catch(e){$('#mtMsg').textContent='No se ha podido guardar ('+(e&&e.code||'error')+')'}
