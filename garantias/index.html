@@ -4,32 +4,42 @@
 <meta charset="utf-8">
 <meta name="robots" content="noindex, nofollow">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 584 506'%3E%3Cpath d='M266.69 154.59L583.51 450.02V446.46L339.81 30.05C326.91 10.09 299.53 0 276.04 0H276C233.16 0 214.45 31.65 214.45 31.65L141.33 160.22C200.8 83.08 266.68 154.6 266.68 154.6L266.69 154.59Z' fill='%23074C5B'/%3E%3Cpath d='M285.25 416.82C285.25 416.82 358.22 373.73 397 392.17L329.97 338.28C305.9 318.92 272.59 314.34 244.94 328.11C239.63 330.75 199.86 354.21 147.87 377.13C147.87 377.13 89.25 408.97 64.9 358.77C64.9 358.77 52.57 319.98 66.69 287.85C66.62 287.85 7.76 398.48 7.76 398.48C-27.97 475.22 66.53 538.35 146.86 487.78L285.24 416.81L285.25 416.82Z' fill='%23074C5B'/%3E%3C/svg%3E">
 <title>Garantías y Mantenimiento Leaseir</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap">
 <style>
 :root{
-  --bg:#EEF1F5; --card:#FFFFFF; --ink:#18212C; --mut:#6A7482; --line:#E3E7ED; --soft:#F6F8FA;
-  --acc:#5B35C4; --acc-s:#EEE9FB;
-  --gar:#2E6BDE; --gar-s:#E6EEFC;
-  --man:#17915E; --man-s:#E2F4EB;
-  --sin:#D4861A; --sin-s:#FCF1DF;
-  --ren:#8C7BC4; --ren-s:#F0EDF8;
-  --gry:#A3ACB8; --gry-s:#EFF1F4;
-  --bad:#CF3F37; --bad-s:#FBE7E5;
-  --sh:0 1px 2px rgba(24,33,44,.05),0 6px 18px rgba(24,33,44,.07);
+  /* Paleta corporativa Leaseir: teal #074C5B, teal oscuro #05272D, azul claro #8DC5D1, ámbar #FFCB77, gris #F2F2F2 */
+  --teal:#074C5B; --teal-d:#05272D; --sky:#8DC5D1; --amber:#FFCB77;
+  --bg:#F2F2F2; --card:#FFFFFF; --ink:#0D2F38; --mut:#5C7C85; --line:rgba(7,76,91,.12); --soft:#F4F8F9;
+  --acc:#074C5B; --acc-s:rgba(141,197,209,.28);
+  --gar:#3A93A8; --gar-s:#E3F1F5;
+  --man:#0F7A63; --man-s:#DFF1EB;
+  --sin:#E3A33D; --sin-s:#FFF3DC;
+  --ren:#7E97A0; --ren-s:#EAF0F2;
+  --gry:#AAB9BE; --gry-s:#EEF2F3;
+  --bad:#B3363F; --bad-s:rgba(179,54,63,.10);
+  --sh:0 1px 2px rgba(5,39,45,.05),0 10px 24px -14px rgba(5,39,45,.28);
+  --fd:"Jost","Futura PT",Futura,"Century Gothic",system-ui,sans-serif;
   --r:16px;
   --f:"Plus Jakarta Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
   --mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
 }
 html,body{height:100%}
-body{background:var(--bg);color:var(--ink);font-family:var(--f);font-size:13px;margin:0}
+body{background:radial-gradient(1100px 520px at 8% -12%,rgba(141,197,209,.40) 0%,transparent 62%),var(--bg);background-attachment:fixed;color:var(--ink);font-family:var(--f);font-size:13px;margin:0}
 *{box-sizing:border-box}
 button{font-family:inherit;cursor:pointer}
 .app{height:100%;display:grid;grid-template-rows:auto auto 1fr;gap:12px;padding-block:14px;padding-inline:18px;max-width:1680px;margin:0 auto}
-header{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-h1{font-size:19px;font-weight:800;letter-spacing:-.01em;margin:0;text-wrap:balance}
-.asof{color:var(--mut);font-size:11.5px}
+header{display:flex;align-items:center;gap:12px;flex-wrap:nowrap;min-width:0}
+@media (max-width:1100px){header{flex-wrap:wrap}}
+h1{font-family:var(--fd);font-size:21px;font-weight:600;letter-spacing:.005em;margin:0;text-wrap:balance;color:var(--teal-d)}
+.brand{display:flex;align-items:center;gap:8px;color:var(--teal);text-decoration:none;padding-right:12px;border-right:1px solid var(--line)}
+.brand svg{width:28px;height:auto;display:block}
+.brand span{font-family:var(--fd);font-weight:500;font-size:17px;letter-spacing:.06em;color:var(--teal)}
+.ct h2,.kpi .v,.accsum b,.md-h h3{font-family:var(--fd)}
+.kpi .v{font-weight:600}
+.asof{color:var(--mut);font-size:11.5px;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .sp{flex:1}
 .btn{border:0;background:var(--card);box-shadow:var(--sh);border-radius:999px;padding:7px 14px;font-weight:600;font-size:12.5px;color:var(--ink);display:inline-flex;gap:8px;align-items:center}
 .btn:hover{background:var(--soft)}
@@ -63,7 +73,7 @@ h1{font-size:19px;font-weight:800;letter-spacing:-.01em;margin:0;text-wrap:balan
 .tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:8px}
 .chip{border:0;border-radius:999px;padding:5px 11px;font-size:12px;font-weight:600;background:var(--soft);color:var(--ink);display:inline-flex;gap:6px;align-items:center}
 .chip b{font-variant-numeric:tabular-nums;font-weight:700}
-.chip.on{background:var(--ink);color:#fff}
+.chip.on{background:var(--teal);color:#fff}
 .search{flex:1;min-width:150px;border:1px solid var(--line);border-radius:999px;padding:7px 13px;font:inherit;font-size:12.5px;background:var(--soft);color:var(--ink)}
 .search:focus{outline:2px solid var(--acc);outline-offset:1px;background:#fff}
 table{width:100%;border-collapse:separate;border-spacing:0;font-size:12.5px}
@@ -75,7 +85,7 @@ td.cl{max-width:180px;overflow:hidden;text-overflow:ellipsis}
 .mono{font-family:var(--mono);font-size:12px}
 .r{text-align:right}
 .pill{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:2px 9px;font-size:11.5px;font-weight:700}
-.p-garantia{background:var(--gar-s);color:var(--gar)}.p-mant{background:var(--man-s);color:var(--man)}.p-sincob{background:var(--sin-s);color:#A2620C}.p-renting{background:var(--ren-s);color:#6B59A8}.p-rsinf{background:var(--bad-s);color:var(--bad)}.p-otro{background:var(--gry-s);color:#5E6773}
+.p-garantia{background:var(--gar-s);color:var(--gar)}.p-mant{background:var(--man-s);color:var(--man)}.p-sincob{background:var(--sin-s);color:#9A6A12}.p-renting{background:var(--ren-s);color:#4F6B74}.p-rsinf{background:var(--bad-s);color:var(--bad)}.p-otro{background:var(--gry-s);color:#5E6773}
 .warn{color:var(--bad);font-weight:800;margin-left:4px}
 .months{display:flex;align-items:flex-end;gap:6px;height:100%;min-height:90px;padding-top:6px}
 .mcol{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;border:0;background:none;padding:0;cursor:pointer;height:100%;justify-content:flex-end;font:inherit;color:inherit;min-width:0}
@@ -99,7 +109,7 @@ td.cl{max-width:180px;overflow:hidden;text-overflow:ellipsis}
 .steps .k{color:var(--mut)}
 .steps .eq{grid-column:1/-1;border-top:1px dashed var(--line);padding-top:6px;font-weight:700}
 .src{font-size:11.5px;color:var(--mut);margin-top:6px;line-height:1.5}
-.act{background:var(--acc-s);color:#3E2491;border-radius:12px;padding:10px 14px;font-weight:600}
+.act{background:var(--acc-s);color:var(--teal-d);border-radius:12px;padding:10px 14px;font-weight:600}
 .mt{max-height:340px;overflow:auto;border:1px solid var(--line);border-radius:12px}
 .mt table{font-size:12px}
 .rules{display:grid;grid-template-columns:1fr 110px 36px;gap:8px;align-items:center}
@@ -108,7 +118,7 @@ td.cl{max-width:180px;overflow:hidden;text-overflow:ellipsis}
 .note{font-size:11.5px;color:var(--mut)}
 .seg{display:inline-flex;background:var(--card);box-shadow:var(--sh);border-radius:999px;padding:3px}
 .seg button{border:0;background:none;border-radius:999px;padding:6px 14px;font-weight:700;font-size:12.5px;color:var(--mut)}
-.seg button.on{background:var(--ink);color:#fff}
+.seg button.on{background:var(--teal);color:#fff}
 .acc{display:flex;flex-direction:column;min-height:0}
 .acc table td{vertical-align:middle}
 .acc .bar{height:12px;min-width:40px}
@@ -124,7 +134,7 @@ tr.dirty td{background:#FFF9EC}
 .org{border:0;border-radius:999px;padding:3px 10px;font-size:11.5px;font-weight:700;white-space:nowrap}
 .o-man{background:var(--man-s);color:var(--man)}
 .o-reg{background:var(--gar-s);color:var(--gar)}
-.o-def{background:var(--sin-s);color:#A2620C;cursor:pointer}
+.o-def{background:var(--sin-s);color:#9A6A12;cursor:pointer}
 .o-def:hover{filter:brightness(.95)}
 .num0{color:#C2C8D0}
 .mtv{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);gap:12px;min-height:0}
@@ -200,10 +210,10 @@ th.sth.on .ar{opacity:1;color:var(--acc)}
 
 <div class="app">
   <header>
+    <span class="brand" title="Leaseir Technologies"><svg viewBox="0 0 584 506" aria-hidden="true"><path fill="currentColor" d="M266.69 154.59L583.51 450.02V446.46L339.81 30.05C326.91 10.09 299.53 0 276.04 0H276C233.16 0 214.45 31.65 214.45 31.65L141.33 160.22C200.8 83.08 266.68 154.6 266.68 154.6L266.69 154.59Z"/><path fill="currentColor" d="M285.25 416.82C285.25 416.82 358.22 373.73 397 392.17L329.97 338.28C305.9 318.92 272.59 314.34 244.94 328.11C239.63 330.75 199.86 354.21 147.87 377.13C147.87 377.13 89.25 408.97 64.9 358.77C64.9 358.77 52.57 319.98 66.69 287.85C66.62 287.85 7.76 398.48 7.76 398.48C-27.97 475.22 66.53 538.35 146.86 487.78L285.24 416.81L285.25 416.82Z"/></svg><span>LEASEIR</span></span>
     <h1>Garantías y Mantenimiento</h1>
     <div class="seg" role="tablist"><button type="button" id="tP" class="on" role="tab">Parque</button><button type="button" id="tA" role="tab">Grandes cuentas</button><button type="button" id="tM" role="tab">Tipos de mantenimiento</button></div>
     <span class="asof" id="asof"></span>
-    <span class="sp"></span>
     <button class="btn" id="bAlert" type="button">Lo que no cuadra <span class="n" id="nAlert">0</span></button>
     <button class="btn alt" id="bRules" type="button">Reglas de garantía</button>
   </header>
@@ -258,13 +268,13 @@ const TODAY=new Date(D.hoy+'T12:00:00');
 const HOLDED_DATE=new Date(D.holdedAt+'T12:00:00');
 const CD='Si el diodo está usado, se cobran 350 € por cada millón de disparos que tenga';
 const DEFAULT_TYPES=[
- {id:'d50',short:'D50',color:'#2E6BDE',name:'Seguro Diodo 50%',d:'50% de descuento en el diodo.',single:'690 €/año',dual:'850 €/año',quad:'950 €/año',caliport:'350 €/año',rev:'1.000 €',portes:'No incluido',susti:'100 €/día (400 €/semana)',cond:CD,min:'24 meses',src:'pdf'},
- {id:'pack',short:'PACK',color:'#17915E',name:'Pack Mantenimiento',d:'50% en diodo y en el resto de piezas y horas de taller. 80% en Caliport.',single:'850 €/año',dual:'990 €/año',quad:'1.090 €/año',caliport:'70 €/año',rev:'500 €/año',portes:'No incluido',susti:'100 €/día (400 €/semana)',cond:CD,min:'24 meses',src:'pdf'},
- {id:'prem',short:'PREM',color:'#5B35C4',name:'Mantenimiento Premium (extensión de garantía)',d:'50% de descuento en diodo. 50% en mal uso del diodo. 80% de descuento en piezas, horas de taller y Caliport. Revisión anual en taller o in situ incluida.',single:'190 €/mes (160 €/mes promo compra)',dual:'250 €/mes (225 €/mes promo compra)',quad:'275 €/mes (250 €/mes promo compra)',caliport:'70 €/año',rev:'Incluida',portes:'Incluidos',susti:'0 €/día (máximo 1 semana + los días de retraso provocados por Leaseir)',cond:CD,min:'24 meses',src:'pdf'},
- {id:'dist',short:'DIST',color:'#D4861A',name:'Pack Distribuidores y Cadenas',d:'50% en diodo y piezas. 80% en Caliport.',single:'690 €/año',dual:'850 €/año',quad:'950 €/año',caliport:'70 €/año',rev:'500 €/año',portes:'No incluido',susti:'100 €/día (400 €/semana)',cond:CD,min:'24 meses',src:'pdf'}];
+ {id:'d50',short:'D50',color:'#3A93A8',name:'Seguro Diodo 50%',d:'50% de descuento en el diodo.',single:'690 €/año',dual:'850 €/año',quad:'950 €/año',caliport:'350 €/año',rev:'1.000 €',portes:'No incluido',susti:'100 €/día (400 €/semana)',cond:CD,min:'24 meses',src:'pdf'},
+ {id:'pack',short:'PACK',color:'#0F7A63',name:'Pack Mantenimiento',d:'50% en diodo y en el resto de piezas y horas de taller. 80% en Caliport.',single:'850 €/año',dual:'990 €/año',quad:'1.090 €/año',caliport:'70 €/año',rev:'500 €/año',portes:'No incluido',susti:'100 €/día (400 €/semana)',cond:CD,min:'24 meses',src:'pdf'},
+ {id:'prem',short:'PREM',color:'#074C5B',name:'Mantenimiento Premium (extensión de garantía)',d:'50% de descuento en diodo. 50% en mal uso del diodo. 80% de descuento en piezas, horas de taller y Caliport. Revisión anual en taller o in situ incluida.',single:'190 €/mes (160 €/mes promo compra)',dual:'250 €/mes (225 €/mes promo compra)',quad:'275 €/mes (250 €/mes promo compra)',caliport:'70 €/año',rev:'Incluida',portes:'Incluidos',susti:'0 €/día (máximo 1 semana + los días de retraso provocados por Leaseir)',cond:CD,min:'24 meses',src:'pdf'},
+ {id:'dist',short:'DIST',color:'#C98A1E',name:'Pack Distribuidores y Cadenas',d:'50% en diodo y piezas. 80% en Caliport.',single:'690 €/año',dual:'850 €/año',quad:'950 €/año',caliport:'70 €/año',rev:'500 €/año',portes:'No incluido',susti:'100 €/día (400 €/semana)',cond:CD,min:'24 meses',src:'pdf'}];
 const NOMANT={name:'Sin mantenimiento',d:'Sin cobertura.',single:'0',dual:'0',quad:'0',caliport:'350 €',rev:'1.000 €',portes:'No incluido',susti:'100 €/día (400 €/semana)',cond:'—',min:'—'};
 const TFIELDS=[['d','Qué cubre'],['single','Single'],['dual','Dual'],['quad','Quad'],['caliport','Caliport con certificado'],['rev','Revisión anual (taller o in situ)'],['portes','Portes / desplazamiento'],['susti','Máquina de sustitución'],['cond','Condiciones descuento en diodo'],['min','Periodo mínimo']];
-const TCOLORS=['#2E6BDE','#17915E','#5B35C4','#D4861A','#C2410C','#0E7490','#9D174D','#4D7C0F','#6B7280'];
+const TCOLORS=['#3A93A8','#0F7A63','#074C5B','#C98A1E','#B3363F','#5C7C85','#8A5A9E','#4D7C0F','#05272D'];
 const types=()=>RULES.types||(RULES.types=JSON.parse(JSON.stringify(DEFAULT_TYPES)));
 const typeById=id=>id?types().find(t=>t.id===id):null;
 const mtOf=c=>{const k=(RULES.mtc||{})[c];return typeById(k)?k:null};
@@ -707,7 +717,7 @@ function renderAcc(){
     <td class="r">${nf.format(a.n)}</td>
     <td style="min-width:60px"><span class="bar" style="width:${Math.max(12,a.n/mx*100)}%">${['garantia','mant','sincob','renting'].map(s=>a[s]?`<i style="width:${a[s]/act*100}%;background:${ST[s].c}"></i>`:'').join('')}</span></td>
     <td class="r">${z(a.garantia)}</td><td class="r">${z(a.mant)}</td><td class="r">${z(a.sincob)}</td><td class="r">${a.soon?`<button class="lnk" type="button" data-av="${i}" title="Preparar aviso al cliente">${a.soon}</button>`:z(0)}</td>
-    <td class="r" style="white-space:nowrap"><input class="minp" id="am${i}" type="number" min="0" max="120" value="${cur}" data-c="${i}" aria-label="Meses de garantía de ${esc(a.c)}" style="${o.k==='def'?'border-color:var(--sin)':''}"><br>${o.k==='def'?`<button class="lnk" type="button" data-ok="${i}" style="font-size:11px;color:#A2620C" title="Dar por bueno el plazo actual">Confirmar</button>`:`<span class="note" title="${esc(o.d)}">${o.k==='man'?'Manual ✓':'Regla'}</span>`}</td>
+    <td class="r" style="white-space:nowrap"><input class="minp" id="am${i}" type="number" min="0" max="120" value="${cur}" data-c="${i}" aria-label="Meses de garantía de ${esc(a.c)}" style="${o.k==='def'?'border-color:var(--sin)':''}"><br>${o.k==='def'?`<button class="lnk" type="button" data-ok="${i}" style="font-size:11px;color:#9A6A12" title="Dar por bueno el plazo actual">Confirmar</button>`:`<span class="note" title="${esc(o.d)}">${o.k==='man'?'Manual ✓':'Regla'}</span>`}</td>
     <td class="r" style="white-space:nowrap"><input class="minp" id="af${i}" type="number" min="0" max="60" value="${fm?fm.m:''}" placeholder="—" data-fc="${i}" title="Meses con todas las reparaciones cubiertas al entrar en mantenimiento" aria-label="Meses de garantía por mantenimiento de ${esc(a.c)}" style="${fm?'border-color:var(--man);color:var(--man)':''}"><br><span class="note">${a.full?'<b style="color:var(--man)">'+a.full+' equipos hoy</b>':'&nbsp;'}</span></td>
     <td>${a.cuota?`<select class="mtsel" data-am="${i}" aria-label="Tipo de mantenimiento de ${esc(a.c)}" style="max-width:150px;${mtOf(a.c)?'border-color:'+mtColor(mtOf(a.c))+';color:'+mtColor(mtOf(a.c)):'color:var(--mut)'}"><option value="">Sin tipo</option>${types().map(t=>`<option value="${esc(t.id)}"${mtOf(a.c)===t.id?' selected':''}>${esc(t.short+' · '+t.name)}</option>`).join('')}</select>`:'<span class="num0">Sin contrato</span>'}</td>
     <td class="r">${a.cuota?eur2(a.cuota):z(0)}</td><td>${invCell(a.li,true)}</td></tr>`}).join('')}</tbody></table>${!rows.length?'<div class="more">Ninguna cuenta con este filtro.</div>':''}`;
@@ -760,7 +770,7 @@ const RKEY='lt-garantias-reglas';
 async function saveRules(){const body={def:RULES.def,rules:RULES.rules,manual:RULES.manual||{},gone:RULES.gone||[],full:RULES.full||[],fullm:RULES.fullm||{},types:types(),mtc:RULES.mtc||{},updatedAt:new Date().toISOString()};
   if(db){await db.doc('config/garantias').set(body);RULES_SRC='guardadas en el panel '+new Date().toLocaleString('es-ES');return}
   localStorage.setItem(RKEY,JSON.stringify(body));RULES_SRC='guardadas en este navegador '+new Date().toLocaleString('es-ES')}
-function loadTypes(d){if(Array.isArray(d.types)&&d.types.length)return d.types.map(t=>Object.assign({},t));const base=JSON.parse(JSON.stringify(DEFAULT_TYPES));
+function loadTypes(d){if(Array.isArray(d.types)&&d.types.length){const OLD={'#2E6BDE':'#3A93A8','#17915E':'#0F7A63','#5B35C4':'#074C5B','#D4861A':'#C98A1E','#C2410C':'#B3363F','#0E7490':'#5C7C85','#9D174D':'#8A5A9E','#6B7280':'#05272D'};return d.types.map(t=>Object.assign({},t,{color:OLD[t.color]||t.color}))}const base=JSON.parse(JSON.stringify(DEFAULT_TYPES));
   const used=new Set(Object.values(d.mtc||{}));['A','B','C','D'].forEach((k,i)=>{if(used.has(k)){const o=(d.mt||{})[k]||{};base.push({id:k,short:k,color:TCOLORS[4+i],name:o.t||('Tipo '+k),d:o.d||'',custom:true})}});return base}
 function loadRulesObj(d){if(!d||!Array.isArray(d.rules))return false;RULES={def:(d.def===0||d.def)?+d.def:12,rules:d.rules.map(r=>({p:String(r.p||''),m:+r.m||0})),manual:Object.fromEntries(Object.entries(d.manual||{}).map(([k,v])=>[k,+v||0])),gone:Array.isArray(d.gone)?d.gone.map(String):DEFAULT_RULES.gone.slice(),fullm:Object.fromEntries(Object.entries(d.fullm||{}).map(([k,v])=>[k,+v||0])),full:Array.isArray(d.full)?d.full.map(r=>({p:String(r.p||''),m:+r.m||0})):DEFAULT_RULES.full.map(r=>({...r})),types:loadTypes(d),mtc:Object.assign({},d.mtc||{})};return true}
 try{const s=localStorage.getItem(RKEY);if(s&&loadRulesObj(JSON.parse(s)))RULES_SRC='guardadas en este navegador'}catch(e){}
@@ -822,8 +832,8 @@ if(VIEW==='mt')renderMT();
 };
 </script>
 
-<div class="ov" id="lock" style="background:var(--bg)"><form class="md" id="lockF" style="width:min(400px,100%);padding:26px" autocomplete="off">
-<h3 style="margin:0 0 6px;font-size:18px;font-weight:800">Garantías y Mantenimiento</h3>
+<div class="ov" id="lock" style="background:radial-gradient(1100px 520px at 8% -12%,rgba(141,197,209,.40) 0%,transparent 62%),var(--bg)"><form class="md" id="lockF" style="width:min(400px,100%);padding:26px" autocomplete="off">
+<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;color:var(--teal)"><svg style="width:40px;height:auto;display:block;color:var(--teal)" viewBox="0 0 584 506" aria-hidden="true"><path fill="currentColor" d="M266.69 154.59L583.51 450.02V446.46L339.81 30.05C326.91 10.09 299.53 0 276.04 0H276C233.16 0 214.45 31.65 214.45 31.65L141.33 160.22C200.8 83.08 266.68 154.6 266.68 154.6L266.69 154.59Z"/><path fill="currentColor" d="M285.25 416.82C285.25 416.82 358.22 373.73 397 392.17L329.97 338.28C305.9 318.92 272.59 314.34 244.94 328.11C239.63 330.75 199.86 354.21 147.87 377.13C147.87 377.13 89.25 408.97 64.9 358.77C64.9 358.77 52.57 319.98 66.69 287.85C66.62 287.85 7.76 398.48 7.76 398.48C-27.97 475.22 66.53 538.35 146.86 487.78L285.24 416.81L285.25 416.82Z"/></svg><span style="font-family:var(--fd);font-weight:500;font-size:18px;letter-spacing:.06em">LEASEIR</span></div><h3 style="margin:0 0 6px;font-size:19px;font-weight:600;font-family:var(--fd);color:var(--teal-d)">Garantías y Mantenimiento</h3>
 <p class="note" style="margin:0 0 14px">Los datos van cifrados. Escribe la contraseña del cuadro de mando.</p>
 <input class="search" id="pw" type="password" placeholder="Contraseña" autocomplete="current-password" style="width:100%">
 <p class="note" id="lockMsg" style="min-height:16px;margin:8px 0 0;color:var(--bad)"></p>
