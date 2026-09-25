@@ -137,7 +137,7 @@ tr.dirty td{background:#FFF9EC}
 .o-def{background:var(--sin-s);color:#9A6A12;cursor:pointer}
 .o-def:hover{filter:brightness(.95)}
 .num0{color:#C2C8D0}
-.mtv{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);gap:12px;min-height:0}
+.mtv{display:grid;grid-template-columns:minmax(0,1.75fr) minmax(0,1fr);gap:12px;min-height:0}
 table.cmp{font-size:12px}
 table.cmp td,table.cmp th{white-space:normal;vertical-align:top}
 table.cmp td{min-width:120px;line-height:1.35}
@@ -150,20 +150,25 @@ table.cmp th.cmpr{position:sticky;left:0;background:var(--card);text-transform:n
 .fl{display:flex;flex-direction:column;gap:4px;font-size:11.5px;color:var(--mut);font-weight:700}
 .fl input,.fl textarea{border:1px solid var(--line);border-radius:10px;padding:7px 10px;font:inherit;font-size:13px;font-weight:500;color:var(--ink);background:#fff;width:100%}
 .fl input:focus,.fl textarea:focus{outline:2px solid var(--acc);outline-offset:1px}
-.kgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:10px;align-items:start}
+.kgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(172px,1fr));gap:8px;align-items:stretch}
+.kcov{display:grid;grid-template-columns:1fr 1fr;gap:5px 8px;background:#fff;border-radius:10px;padding:6px 8px}
+.kg{min-width:0;font-size:10.5px;line-height:1.2}.kg span{color:var(--mut);display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.kg b{font-family:var(--fd);font-size:16px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums}
+.kg i{display:block;height:4px;border-radius:3px;background:var(--soft);margin-top:2px;overflow:hidden}.kg i u{display:block;height:100%;border-radius:3px}
+.kg small{display:block;color:var(--mut);font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kg.zero b{color:var(--mut)}.kg.unk b{color:var(--gry);font-weight:600}
 .kah{display:flex;gap:10px;align-items:baseline;margin:12px 0 6px;font-size:12px;color:var(--mut)}.kah b{white-space:nowrap;color:var(--ink);font-family:var(--fd);font-size:13.5px}
 .klist{display:flex;flex-direction:column;gap:4px}
 .kr{display:grid;grid-template-columns:auto minmax(120px,1.1fr) minmax(0,2fr) minmax(0,.9fr) auto auto;gap:10px;align-items:center;background:var(--soft);border-radius:10px;padding:6px 10px;border-left:4px solid var(--c);font-size:12px}
 .kr .kn{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12.5px}.kr .kd1{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--mut)}.kr .kpr{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.kr .kf{color:var(--mut);white-space:nowrap;font-size:11.5px}
-.kc{background:var(--soft);border-radius:14px;padding:10px 12px;display:flex;flex-direction:column;gap:6px;border-top:4px solid var(--c)}
+.kc{background:var(--soft);border-radius:14px;padding:8px 10px;display:flex;flex-direction:column;gap:5px;border-top:4px solid var(--c)}
 .kh{display:flex;align-items:center;gap:8px}
-.kh .kn{flex:1;font-size:13px;line-height:1.2}
+.kh .kn{flex:1;font-size:13px;line-height:1.2}.kh .tb{flex:none}.korig{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;font-size:10.5px;color:var(--mut);white-space:nowrap}.kn2{font-size:12.5px;line-height:1.2;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:2.4em}
 .kd{font-size:12px;line-height:1.35;color:var(--ink);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .kp{display:flex;flex-wrap:wrap;gap:4px}
 .kpc{background:#fff;border-radius:8px;padding:2px 7px;font-size:11.5px;font-weight:700;font-variant-numeric:tabular-nums}
 .kpc i{font-style:normal;color:var(--mut);margin-right:4px;font-weight:800}
-.kvs{display:grid;grid-template-columns:1fr 1fr;gap:3px 10px}
-.kv{font-size:11px;line-height:1.3;min-width:0}.kv span{color:var(--mut);display:block}.kv b{font-weight:600;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
+.kvs{display:grid;grid-template-columns:1fr;gap:2px}
+.kv{font-size:11px;line-height:1.3;min-width:0;display:flex;gap:5px}.kv span{color:var(--mut);flex:none}.kv b{min-width:0;font-weight:600;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
 .kpc small{font-weight:600;color:var(--mut);font-size:10.5px}
 .kh .kn{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .kf{font-size:11px;color:var(--mut);margin-top:auto}
@@ -282,16 +287,19 @@ const TODAY=new Date(D.hoy+'T12:00:00');
 const HOLDED_DATE=new Date(D.holdedAt+'T12:00:00');
 const CD='Si el diodo está usado, se cobran 350 € por cada millón de disparos que tenga';
 const DEFAULT_TYPES=[
- {id:'d50',short:'D50',color:'#3A93A8',name:'Seguro Diodo 50%',d:'50% de descuento en el diodo.',single:'690 €/año',dual:'850 €/año',quad:'950 €/año',caliport:'350 €/año',rev:'1.000 €',portes:'No incluido',susti:'100 €/día (400 €/semana)',cond:CD,min:'24 meses',src:'pdf'},
- {id:'pack',short:'PACK',color:'#0F7A63',name:'Pack Mantenimiento',d:'50% en diodo y en el resto de piezas y horas de taller. 80% en Caliport.',single:'850 €/año',dual:'990 €/año',quad:'1.090 €/año',caliport:'70 €/año',rev:'500 €/año',portes:'No incluido',susti:'100 €/día (400 €/semana)',cond:CD,min:'24 meses',src:'pdf'},
- {id:'prem',short:'PREM',color:'#074C5B',name:'Mantenimiento Premium (extensión de garantía)',d:'50% de descuento en diodo. 50% en mal uso del diodo. 80% de descuento en piezas, horas de taller y Caliport. Revisión anual en taller o in situ incluida.',single:'190 €/mes (160 €/mes promo compra)',dual:'250 €/mes (225 €/mes promo compra)',quad:'275 €/mes (250 €/mes promo compra)',caliport:'70 €/año',rev:'Incluida',portes:'Incluidos',susti:'0 €/día (máximo 1 semana + los días de retraso provocados por Leaseir)',cond:CD,min:'24 meses',src:'pdf'},
- {id:'dist',short:'DIST',color:'#C98A1E',name:'Pack Distribuidores y Cadenas',d:'50% en diodo y piezas. 80% en Caliport.',single:'690 €/año',dual:'850 €/año',quad:'950 €/año',caliport:'70 €/año',rev:'500 €/año',portes:'No incluido',susti:'100 €/día (400 €/semana)',cond:CD,min:'24 meses',src:'pdf'},
- {id:'sv',short:'SV',color:'#8A5A9E',name:'Contrato Sin Vello (cadena)',d:'50% de descuento en piezas y en horas de taller. 40% de descuento en diodo. Garantía de 6 meses en las piezas. Hora de técnico externo a 100 €/h.',dual:'85 €/mes por equipo (según Holded)',caliport:'',rev:'',portes:'No incluidos',susti:'Incluida: máx. 5 días por incidencia; días adicionales a 80 €/día',cond:'40% de descuento en diodo',min:'',src:'resumen',custom:true},
- {id:'bel',short:'BEL',color:'#5C7C85',name:'Contrato Clínica Belenús',d:'50% de descuento en piezas y diodo. 100% en horas de técnico. Caliport incluido.',dual:'75 €/mes por equipo (según Holded)',caliport:'Incluido (100% de descuento)',rev:'',portes:'Sin descuento',susti:'No incluida',cond:'50% de descuento en diodo',min:'',src:'resumen',custom:true},
- {id:'derm',short:'DERM',color:'#4D7C0F',name:'Contrato Dermasana (franquicias)',d:'50% de descuento en piezas. Garantía de 6 meses en las reparaciones. Mano de obra in situ a 100 €/h sin descuento.',dual:'75 €/mes consola + 35 €/mes pieza de mano (según Holded)',caliport:'100 € precio fijo, portes incluidos',rev:'',portes:'No incluidos',susti:'Incluida: máx. 5 días por incidencia; días adicionales a 80 €/día',cond:'Diodo a precio fijo según millones de disparos al degradar: 0-2 M 1.800 €; 2-5 M 3.000 €; 5-9 M 5.000 €; 9-14 M 6.000 €; más de 14 M 9.000 €',min:'',src:'resumen',custom:true},
- {id:'uni',short:'UNI',color:'#B3363F',name:'Contrato Unico Italia',d:'Equipos nuevos: 50% en diodo, 50% en portes (si hacen falta), 100% en el resto de piezas. Equipos usados: además, el primer diodo al 100%.',portes:'50% de descuento (si hacen falta)',susti:'20 días al año',cond:'Nuevos: 50% en diodo. Usados: primer diodo 100%, después 50%',min:'',src:'resumen',custom:true},
- {id:'br',short:'BR',color:'#05272D',name:'Contrato BR Esthetic (Brull)',d:'Condiciones no recogidas en el resumen: revisar el contrato firmado.',dual:'33,33 €/mes por equipo (según Holded)',src:'resumen',custom:true},
- {id:'ant',short:'ANT',color:'#9A6A12',name:'Mantenimiento antiguo (individual)',d:'Contratos individuales anteriores a los paquetes de 2024, con cuota propia por equipo. Condiciones según cada contrato firmado.',src:'resumen',custom:true}];
+ {id:'d50',cov:{di:[50],pi:[0],mo:[0],ca:[0,'350 €/año']},short:'D50',color:'#3A93A8',name:'Seguro Diodo 50%',d:'50% de descuento en el diodo.',single:'690 €/año',dual:'850 €/año',quad:'950 €/año',caliport:'350 €/año',rev:'1.000 €',portes:'No incluido',susti:'100 €/día (400 €/semana)',cond:CD,min:'24 meses',src:'pdf'},
+ {id:'pack',cov:{di:[50],pi:[50],mo:[50,'taller'],ca:[80,'70 €/año']},short:'PACK',color:'#0F7A63',name:'Pack Mantenimiento',d:'50% en diodo y en el resto de piezas y horas de taller. 80% en Caliport.',single:'850 €/año',dual:'990 €/año',quad:'1.090 €/año',caliport:'70 €/año',rev:'500 €/año',portes:'No incluido',susti:'100 €/día (400 €/semana)',cond:CD,min:'24 meses',src:'pdf'},
+ {id:'prem',cov:{di:[50,'+50% mal uso'],pi:[80],mo:[80,'taller'],ca:[80,'70 €/año']},short:'PREM',color:'#074C5B',name:'Mantenimiento Premium (extensión de garantía)',d:'50% de descuento en diodo. 50% en mal uso del diodo. 80% de descuento en piezas, horas de taller y Caliport. Revisión anual en taller o in situ incluida.',single:'190 €/mes (160 €/mes promo compra)',dual:'250 €/mes (225 €/mes promo compra)',quad:'275 €/mes (250 €/mes promo compra)',caliport:'70 €/año',rev:'Incluida',portes:'Incluidos',susti:'0 €/día (máximo 1 semana + los días de retraso provocados por Leaseir)',cond:CD,min:'24 meses',src:'pdf'},
+ {id:'dist',cov:{di:[50],pi:[50],mo:[0],ca:[80,'70 €/año']},short:'DIST',color:'#C98A1E',name:'Pack Distribuidores y Cadenas',d:'50% en diodo y piezas. 80% en Caliport.',single:'690 €/año',dual:'850 €/año',quad:'950 €/año',caliport:'70 €/año',rev:'500 €/año',portes:'No incluido',susti:'100 €/día (400 €/semana)',cond:CD,min:'24 meses',src:'pdf'},
+ {id:'sv',cov:{di:[40],pi:[50,'garantía 6 m'],mo:[50,'taller · técnico ext. 100 €/h'],ca:[null]},short:'SV',color:'#8A5A9E',name:'Contrato Sin Vello (cadena)',d:'50% de descuento en piezas y en horas de taller. 40% de descuento en diodo. Garantía de 6 meses en las piezas. Hora de técnico externo a 100 €/h.',dual:'85 €/mes por equipo (según Holded)',caliport:'',rev:'',portes:'No incluidos',susti:'Incluida: máx. 5 días por incidencia; días adicionales a 80 €/día',cond:'40% de descuento en diodo',min:'',src:'resumen',custom:true},
+ {id:'bel',cov:{di:[50],pi:[50],mo:[100,'técnico'],ca:[100]},short:'BEL',color:'#5C7C85',name:'Contrato Clínica Belenús',d:'50% de descuento en piezas y diodo. 100% en horas de técnico. Caliport incluido.',dual:'75 €/mes por equipo (según Holded)',caliport:'Incluido (100% de descuento)',rev:'',portes:'Sin descuento',susti:'No incluida',cond:'50% de descuento en diodo',min:'',src:'resumen',custom:true},
+ {id:'derm',cov:{di:['Fijo','1.800–9.000 € según disparos'],pi:[50,'garantía 6 m'],mo:[0,'in situ 100 €/h'],ca:['100 €','precio fijo, portes incl.']},short:'DERM',color:'#4D7C0F',name:'Contrato Dermasana (franquicias)',d:'50% de descuento en piezas. Garantía de 6 meses en las reparaciones. Mano de obra in situ a 100 €/h sin descuento.',dual:'75 €/mes consola + 35 €/mes pieza de mano (según Holded)',caliport:'100 € precio fijo, portes incluidos',rev:'',portes:'No incluidos',susti:'Incluida: máx. 5 días por incidencia; días adicionales a 80 €/día',cond:'Diodo a precio fijo según millones de disparos al degradar: 0-2 M 1.800 €; 2-5 M 3.000 €; 5-9 M 5.000 €; 9-14 M 6.000 €; más de 14 M 9.000 €',min:'',src:'resumen',custom:true},
+ {id:'uni',cov:{di:[50,'usados: 1.º al 100%'],pi:[100],mo:[null],ca:[null]},short:'UNI',color:'#B3363F',name:'Contrato Unico Italia',d:'Equipos nuevos: 50% en diodo, 50% en portes (si hacen falta), 100% en el resto de piezas. Equipos usados: además, el primer diodo al 100%.',portes:'50% de descuento (si hacen falta)',susti:'20 días al año',cond:'Nuevos: 50% en diodo. Usados: primer diodo 100%, después 50%',min:'',src:'resumen',custom:true},
+ {id:'br',cov:{di:[null],pi:[null],mo:[null],ca:[null]},short:'BR',color:'#05272D',name:'Contrato BR Esthetic (Brull)',d:'Condiciones no recogidas en el resumen: revisar el contrato firmado.',dual:'33,33 €/mes por equipo (según Holded)',src:'resumen',custom:true},
+ {id:'ant',cov:{di:[null],pi:[null],mo:[null],ca:[null]},short:'ANT',color:'#9A6A12',name:'Mantenimiento antiguo (individual)',d:'Contratos individuales anteriores a los paquetes de 2024, con cuota propia por equipo. Condiciones según cada contrato firmado.',src:'resumen',custom:true}];
+const COVF=[['di','Diodo'],['pi','Piezas'],['mo','Horas'],['ca','Caliport']];
+const covOf=t=>t.cov||((DEFAULT_TYPES.find(x=>x.id===t.id)||{}).cov)||{};
+function covHtml(t){const c=covOf(t);return `<div class="kcov">${COVF.map(([f,l])=>{const a=c[f]||[null];const v=a[0],n=a[1]||'';const num=typeof v==='number';const txt=v===null||v===undefined||v===''?'?':num?v+'%':String(v);const cls=v===null||v===undefined||v===''?' unk':num&&v===0?' zero':'';return `<div class="kg${cls}" title="${esc(l+': '+(num?v+'% de descuento':txt)+(n?' · '+n:''))}"><span>${l}</span><b>${esc(txt)}</b><i><u style="width:${num?Math.max(0,Math.min(100,v)):(cls?0:100)}%;background:${t.color}"></u></i>${n?`<small>${esc(n)}</small>`:''}</div>`}).join('')}</div>`}
 const NOMANT={name:'Sin mantenimiento',d:'Sin cobertura.',single:'0',dual:'0',quad:'0',caliport:'350 €',rev:'1.000 €',portes:'No incluido',susti:'100 €/día (400 €/semana)',cond:'—',min:'—'};
 const TFIELDS=[['d','Qué cubre'],['single','Single'],['dual','Dual'],['quad','Quad'],['caliport','Caliport con certificado'],['rev','Revisión anual (taller o in situ)'],['portes','Portes / desplazamiento'],['susti','Máquina de sustitución'],['cond','Condiciones descuento en diodo'],['min','Periodo mínimo']];
 const TCOLORS=['#3A93A8','#0F7A63','#074C5B','#C98A1E','#B3363F','#5C7C85','#8A5A9E','#4D7C0F','#05272D'];
@@ -651,14 +659,12 @@ function renderMT(){
   const showC=(t,f)=>{const c=commons.find(x=>x[0]===f);return t[f]&&(!c||t[f]!==c[2])};
   const kv=(l,v)=>v?`<div class="kv" title="${esc(l+': '+v)}"><span>${esc(l)}</span><b>${esc(v)}</b></div>`:'';
   $('#mtTypes').innerHTML=`<div class="tools" style="margin-bottom:8px"><button class="btn" type="button" id="mtPdf">⤓ Descargar PDF de los paquetes</button><button class="btn alt" type="button" id="mtNew">+ Nuevo tipo de contrato</button></div>
-   <div class="kgrid">${T.filter(t=>t.src==='pdf').map(t=>`<div class="kc" style="--c:${t.color}">
-     <div class="kh"><span class="tb" style="background:${t.color}">${esc(t.short)}</span><b class="kn">${esc(t.name)}</b><button class="lnk" type="button" data-te="${esc(t.id)}">Editar</button></div>
-     <div class="kd" title="${esc(t.d||'')}">${esc(t.d||'—')}</div>
-     <div class="kp">${[['S','Single','single'],['D','Dual','dual'],['Q','Quad','quad']].filter(x=>t[x[2]]).map(([a,l,f])=>`<span class="kpc" title="${esc(l+': '+t[f])}"><i>${a}</i>${esc(t[f].split('(')[0].trim())}${t[f].includes('(')?'<small> · '+esc(t[f].split('(')[1].replace(/\)\s*$/,'').replace(/€\/mes promo compra/,'promo'))+'</small>':''}</span>`).join('')}</div>
-     <div class="kvs">${kv('Caliport',t.caliport)}${kv('Revisión anual',t.rev)}${kv('Portes',t.portes)}${kv('Sustitución',t.susti)}${showC(t,'min')?kv('Periodo mínimo',t.min):''}${showC(t,'cond')?kv('Diodo usado',t.cond):''}</div>
-     <div class="kf">${cnt[t.id]} cliente${cnt[t.id]===1?'':'s'} · ${eqc[t.id]} equipos${t.custom?' · <b>propio</b>':''}</div></div>`).join('')}</div>
-   ${T.some(t=>t.src!=='pdf')?`<div class="kah"><b>Contratos ad-hoc</b><span>condiciones particulares de cada cliente (resumen de contratos o creados a mano) · pincha «Editar» para verlas completas</span></div>
-   <div class="klist">${T.filter(t=>t.src!=='pdf').map(t=>{const pr=[t.single,t.dual,t.quad].filter(Boolean)[0]||'';return `<div class="kr" style="--c:${t.color}"><span class="tb" style="background:${t.color}">${esc(t.short)}</span><b class="kn" title="${esc(t.name)}">${esc(t.name)}</b><span class="kd1" title="${esc(t.d||'')}">${esc(t.d||'—')}</span><span class="kpr" title="${esc(pr)}">${esc(pr.split('(')[0].trim())}</span><span class="kf">${cnt[t.id]} cl · ${eqc[t.id]} eq</span><button class="lnk" type="button" data-te="${esc(t.id)}">Editar</button></div>`}).join('')}</div>`:''}
+   <div class="kgrid">${T.map(t=>{const pdf=t.src==='pdf';const pr=[['S','Single','single'],['D','Dual','dual'],['Q','Quad','quad']].filter(x=>t[x[2]]);return `<div class="kc" style="--c:${t.color}" title="${esc(t.d||'')}">
+     <div class="kh"><span class="tb" style="background:${t.color}">${esc(t.short)}</span><span class="korig">${pdf?'PDF':'ad-hoc'}</span><button class="lnk" type="button" data-te="${esc(t.id)}">Editar</button></div><b class="kn2" title="${esc(t.name)}">${esc(t.name)}</b>
+     ${covHtml(t)}
+     <div class="kp">${!pr.length?'<span class="kpc" style="color:var(--mut)">Cuota según contrato</span>':pdf?`<span class="kpc" title="${esc(pr.map(([a,l,f])=>l+': '+t[f]).join(' · '))}">${pr.map(([a,l,f])=>`<i>${a}</i>${esc(t[f].split('(')[0].replace(/€.*$/,'').trim())}`).join(' ')} <small>${esc((t[pr[0][2]].split('(')[0].match(/€.*$/)||[''])[0].trim())}</small></span>`:pr.map(([a,l,f])=>`<span class="kpc" title="${esc(t[f])}">${esc(t[f].split('(')[0].trim())}</span>`).join('')}</div>
+     <div class="kvs">${kv('Sustitución',t.susti)}${kv('Portes',t.portes)}${pdf?kv('Revisión anual',t.rev):''}</div>
+     <div class="kf">${cnt[t.id]} cliente${cnt[t.id]===1?'':'s'} · ${eqc[t.id]} equipos</div></div>`}).join('')}</div>
    <div class="src" style="margin-top:8px">${commons.map(([f,l,v])=>`<b>${esc(l)}</b> (paquetes estándar): ${esc(v)}.`).join(' ')} <b>Sin mantenimiento</b>: Caliport ${esc(NOMANT.caliport)}, revisión ${esc(NOMANT.rev)}, sustitución ${esc(NOMANT.susti)}. Paquetes del PDF «Mantenimientos Leaseir Packages &amp; Caliport» (07/04/2026).</div>`;
   $('#mtPdf').onclick=downloadPdf;
   $('#mtNew').onclick=()=>typeModal(null);
@@ -667,7 +673,7 @@ function renderMT(){
   $('#mtChips').querySelectorAll('[data-mf]').forEach(b=>b.onclick=()=>{MTF=b.dataset.mf;renderMT()});
   let rows=all.filter(a=>MTF==='all'||(MTF==='none'?!mtOf(a.c):mtOf(a.c)===MTF));
   rows=sortArr(rows,SORT.mt,{cliente:a=>a.c,n:a=>a.n,cuota:a=>a.cuota,fact:a=>a.li?a.li.fecha:null,tipo:a=>mtOf(a.c)?mtName(mtOf(a.c)):null});
-  $('#mtCust').innerHTML=`<table><thead><tr>${th('mt','cliente','Cliente')}${th('mt','n','Equipos','r')}${th('mt','cuota','Cuota/mes','r')}${th('mt','tipo','Contrato')}</tr></thead><tbody>${rows.map(a=>{const i=all.indexOf(a);const k=mtOf(a.c);return `<tr style="cursor:default"><td class="cl" style="max-width:170px"><button class="lnk" type="button" data-mc="${i}" style="color:var(--ink)">${esc(a.c)}</button></td><td class="r">${a.n}</td><td class="r">${eur2(a.cuota)}</td><td><select class="mtsel" data-ms="${i}" aria-label="Contrato de ${esc(a.c)}" style="max-width:128px;${k?'border-color:'+mtColor(k)+';color:'+mtColor(k):''}"><option value="">—</option>${T.map(t=>`<option value="${esc(t.id)}"${k===t.id?' selected':''}>${esc(t.short+' · '+t.name)}</option>`).join('')}</select></td></tr>`}).join('')}</tbody></table>${!rows.length?'<div class="more">Ningún cliente con este filtro.</div>':''}`;
+  $('#mtCust').innerHTML=`<table><thead><tr>${th('mt','cliente','Cliente')}${th('mt','n','Equipos','r')}${th('mt','cuota','Cuota/mes','r')}${th('mt','tipo','Contrato')}</tr></thead><tbody>${rows.map(a=>{const i=all.indexOf(a);const k=mtOf(a.c);return `<tr style="cursor:default"><td class="cl" style="max-width:150px"><button class="lnk" type="button" data-mc="${i}" style="color:var(--ink)">${esc(a.c)}</button></td><td class="r">${a.n}</td><td class="r">${eur2(a.cuota)}</td><td><select class="mtsel" data-ms="${i}" aria-label="Contrato de ${esc(a.c)}" style="max-width:112px;${k?'border-color:'+mtColor(k)+';color:'+mtColor(k):''}"><option value="">—</option>${T.map(t=>`<option value="${esc(t.id)}"${k===t.id?' selected':''}>${esc(t.short+' · '+t.name)}</option>`).join('')}</select></td></tr>`}).join('')}</tbody></table>${!rows.length?'<div class="more">Ningún cliente con este filtro.</div>':''}`;
   $('#mtCust').querySelectorAll('[data-ms]').forEach(s=>s.onchange=()=>{const c=all[+s.dataset.ms].c;RULES.mtc=RULES.mtc||{};RULES.mtc[c]=s.value||'';MTDIRTY=true;$('#mtMsg').textContent='Cambios sin guardar';setTimeout(renderMT,0)});
   $('#mtCust').querySelectorAll('[data-mc]').forEach(b=>b.onclick=()=>custModal(all[+b.dataset.mc].c));
   wireSort($('#mtCust'),'mt',renderMT);
@@ -684,6 +690,8 @@ function typeModal(id){
     <label class="fl"><span>Abreviatura (máx. 5 letras)</span><input id="tf_short" maxlength="5" value="${esc(t.short)}" placeholder="SV"></label>
     <div class="fl" style="grid-column:span 2"><span>Color</span><span style="display:flex;gap:6px;flex-wrap:wrap">${TCOLORS.map(c=>`<button type="button" class="sw${t.color===c?' on':''}" data-col="${c}" style="background:${c}" aria-label="Color ${c}"></button>`).join('')}</span></div>
     <div style="grid-column:1/-1">${inp('d','Qué cubre',true)}</div>
+    <div style="grid-column:1/-1" class="note">Descuento en la factura de avería: pon el % (p. ej. 50), un texto (p. ej. «Fijo») o déjalo vacío si no se sabe.</div>
+    ${COVF.map(([f,l])=>{const a=covOf(t)[f]||[null];return `<label class="fl"><span>${l} · % descuento</span><input id="cv_${f}" value="${esc(a[0]===null||a[0]===undefined?'':a[0])}" placeholder="?"></label><label class="fl" style="grid-column:span 2"><span>${l} · nota</span><input id="cn_${f}" value="${esc(a[1]||'')}" placeholder="p. ej. técnico externo 100 €/h"></label>`}).join('')}
     ${inp('single','Precio Single')}${inp('dual','Precio Dual')}${inp('quad','Precio Quad')}${inp('caliport','Caliport con certificado')}${inp('rev','Revisión anual')}${inp('portes','Portes / desplazamiento')}${inp('susti','Máquina de sustitución')}${inp('min','Periodo mínimo')}
     <div style="grid-column:1/-1">${inp('cond','Condiciones descuento en diodo',true)}</div>
    </div>
@@ -703,6 +711,7 @@ function typeModal(id){
     if(!name){$('#tfMsg').textContent='Ponle un nombre.';$('#tf_name').focus();return}
     const nt=Object.assign(t,{name,short:(v('short').trim()||autoShort(name)).toUpperCase().slice(0,5),color});
     TFIELDS.forEach(([f])=>{nt[f]=v(f).trim()});
+    nt.cov={};COVF.forEach(([f])=>{const x=(document.getElementById('cv_'+f).value||'').trim().replace(/%$/,'').trim();const n=(document.getElementById('cn_'+f).value||'').trim();const num=x!==''&&!isNaN(+x.replace(',','.'));nt.cov[f]=[x===''?null:num?+x.replace(',','.'):x].concat(n?[n]:[])});
     const T=types();const i=T.findIndex(x=>x.id===nt.id);if(i>=0)T[i]=nt;else T.push(nt);
     try{await saveRules();$('#mtMsg').textContent='Guardado · '+new Date().toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'})}catch(e){$('#mtMsg').textContent='No se ha podido guardar ('+(e&&e.code||'error')+')'}
     closeM();render();setView('mt')};
