@@ -384,7 +384,7 @@ function alerts(){
   A.push({k:'own',t:'La factura de mantenimiento va a otro cliente',d:'El último dueño en ventas no es quien paga la cuota',items:own});
   const dup=EV.filter(o=>o.e.m&&o.e.m.dup);
   A.push({k:'dup',t:'Serie facturada dos veces',d:'El mismo nº de serie aparece en dos líneas o dos clientes',items:dup});
-  A.push({k:'un',t:'Series en Holded que no están en ventas',d:'Líneas de cuota cuyo nº de serie no se encuentra en el fichero',rows:D.un});
+  A.push({k:'un',t:'Cuotas de mantenimiento que no se pueden casar con un equipo',d:'Líneas de factura de Holded sin nº de serie, o cuyo equipo no está (o ya no está) a nombre del cliente en ventas. Dentro, el motivo de cada una',rows:D.un});
   const venc=Object.keys(invByCi).map(ci=>lastInv(ci)).filter(v=>v&&v.estado==='Vencida');
   A.push({k:'venc',t:'Última cuota vencida sin cobrar',d:'Clientes cuya última factura de mantenimiento está vencida',rows:venc});
   const amb=EV.filter(o=>o.e.dq==='ambigua'&&o.end&&Math.abs(days(TODAY,o.end))<=180&&!o.e.ina);
@@ -601,7 +601,7 @@ $('#bAlert').onclick=()=>{const AL=window.__AL;
 function alertModal(a){let h=`<div class="note">${esc(a.d)}</div><div class="sec">`;
   if(a.items){h+=`<div class="mt"><table><thead><tr><th>Serie</th><th>Dueño en ventas</th><th>Factura Holded</th><th>Fin garantía</th></tr></thead><tbody>${a.items.map(o=>`<tr data-i="${EV.indexOf(o)}"><td class="mono">${esc(o.e.s)}</td><td class="cl">${esc(o.e.c)}</td><td class="cl">${o.e.m?esc(o.e.m.num)+' · '+esc(D.cust[o.e.m.ci]):'—'}</td><td>${fd(o.end)}</td></tr>`).join('')}</tbody></table></div>`}
   else if(a.rows2){h+=`<div class="mt"><table><thead><tr><th>Cliente Holded</th><th>Factura</th><th>Serie leída</th></tr></thead><tbody>${a.rows2.map(u=>`<tr><td class="cl">${esc(u.cliente)}</td><td class="mono">${esc(u.num)}</td><td class="mono">${esc(u.tok)}</td></tr>`).join('')}</tbody></table></div>`}
-  else if(a.k==='un'){h+=`<div class="mt"><table><thead><tr><th>Cliente Holded</th><th>Factura</th><th>Lo que pone</th><th class="r">Cuota</th></tr></thead><tbody>${a.rows.map(u=>`<tr><td class="cl">${esc(D.cust[u.ci])}</td><td class="mono">${esc(u.num)}</td><td>${esc(u.tok)} ${esc(u.modelo||'')}</td><td class="r">${u.precio!=null?eur2(u.precio):''}</td></tr>`).join('')}</tbody></table></div>`}
+  else if(a.k==='un'){h+=`<div class="mt"><table><thead><tr><th>Cliente Holded</th><th>Factura</th><th>Lo que pone</th><th class="r">Cuota</th><th style="white-space:normal">Por qué no se casa</th></tr></thead><tbody>${a.rows.map(u=>`<tr style="cursor:default"><td class="cl">${esc(D.cust[u.ci])}</td><td class="mono">${esc(u.num)}</td><td>${esc(u.tok)} ${esc(u.modelo||'')}</td><td class="r">${u.precio!=null?eur2(u.precio):''}</td><td style="white-space:normal;min-width:220px;max-width:300px;overflow-wrap:anywhere">${u.past?'<b style="color:var(--bad)">':''}${esc(u.motivo||'')}${u.past?'</b>':''}</td></tr>`).join('')}</tbody></table></div>`}
   else {h+=`<div class="mt"><table><thead><tr><th>Cliente</th><th>Factura</th><th>Fecha</th><th class="r">Base</th><th>Estado</th></tr></thead><tbody>${a.rows.map(v=>`<tr><td class="cl">${esc(v.cliente)}</td><td class="mono">${esc(v.num)}</td><td>${fd(pd(v.fecha))}</td><td class="r">${eur2(v.base)}</td><td>${esc(v.estado)}</td></tr>`).join('')}</tbody></table></div>`}
   h+='</div><div class="row2"><button class="btn" type="button" id="back">‹ Volver</button></div>';
   openM(a.t,h);wireRows();$('#back').onclick=()=>$('#bAlert').click()}
