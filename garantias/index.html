@@ -376,6 +376,7 @@ let EV=[];
 function recompute(){EV=D.eq.map(e=>evalEq(e))}
 
 // ---- alerts
+const HOLCOL=new Set(['mg','own','dup','rpos','rdup','hnocs','cese','qa']);
 function alerts(){
   const A=[];
   const inGarMant=EV.filter(o=>o.ma&&o.end&&TODAY<=o.end);
@@ -387,8 +388,6 @@ function alerts(){
   A.push({k:'un',t:'Cuotas de mantenimiento que no se pueden casar con un equipo',d:'Líneas de factura de Holded sin nº de serie, o cuyo equipo no está (o ya no está) a nombre del cliente en ventas. Dentro, el motivo de cada una',rows:D.un});
   const venc=Object.keys(invByCi).map(ci=>lastInv(ci)).filter(v=>v&&v.estado==='Vencida');
   A.push({k:'venc',t:'Última cuota vencida sin cobrar',d:'Clientes cuya última factura de mantenimiento está vencida',rows:venc});
-  const amb=EV.filter(o=>o.e.dq==='ambigua'&&o.end&&Math.abs(days(TODAY,o.end))<=180&&!o.e.ina);
-  A.push({k:'amb',t:'Fecha de venta dudosa cerca del fin de garantía',d:'Día y mes pueden estar invertidos y cambia la fecha de fin',items:amb});
   A.push({k:'rsinf',t:'Rentings sin facturar en agosto y septiembre',d:'Ventas los da en renting, pero no aparecen en ninguna factura de renting de agosto ni septiembre',items:EV.filter(o=>o.st==='rsinf')});
   const qi=new Set((D.qa||[]).map(q=>q.i));
   A.push({k:'qa',t:'Casados a revisar',d:'Series de facturas que no cuadran del todo con el parque (pareja consola y pieza de mano que no coincide, factura sin nº de serie o renting que no basta para cambiar de cliente). Pincha cada equipo para ver el motivo',items:EV.filter(o=>qi.has(EQI.get(o.e)))});
@@ -400,7 +399,7 @@ function alerts(){
   A.push({k:'cese',t:'Baja en el resumen pero se sigue facturando',d:'El resumen tiene fecha de cese y Holded sigue emitiendo la cuota',items:EV.filter(o=>o.e.cs&&o.e.cs.c&&o.ma)});
   A.push({k:'imp',t:'Impagados según el resumen de contratos',d:'Marcados como impagado o «baja y deben» en el resumen',items:EV.filter(o=>o.e.cs&&o.e.cs.imp)});
   const fut=EV.filter(o=>o.d&&o.d>TODAY&&!o.e.ina);
-  A.push({k:'fut',t:'Fecha de venta en el futuro',d:'La fecha del fichero es posterior a hoy: la garantía sale mal calculada',items:fut});
+  A.push({k:'fut',t:'Fecha de salida en el futuro',d:'La fecha de salida del equipo (columna Y) es posterior a hoy: la garantía sale mal calculada',items:fut});
   const stop=Object.keys(invByCi).map(ci=>lastInv(ci)).filter(v=>v&&days(pd(v.fecha),HOLDED_DATE)>ACTIVE_DAYS&&!/valoraci/i.test(v.desc));
   A.push({k:'stop',t:'Cuotas que han dejado de emitirse',d:'Clientes con mantenimiento cuya última factura tiene más de '+ACTIVE_DAYS+' días',rows:stop});
   return A.filter(a=>(a.items||a.rows||a.rows2).length);
@@ -489,7 +488,7 @@ function renderList(){
     if(F.month||F.st==='garantia'||F.kpi==='soon')return ex-ey;return (y.d?y.d.getTime():0)-(x.d?x.d.getTime():0)});
   const N=400;const show=a.slice(0,N);
   $('#tbl').innerHTML=`<table><thead><tr>${th('eq','serie','Nº serie')}${th('eq','cliente','Cliente')}${th('eq','fin','Fin garantía','wrap')}${th('eq','estado','Estado')}${th('eq','tipo','Mantenimiento')}${th('eq','full','Garantía por mant. hasta','wrap')}${th('eq','fact','Últ. factura')}</tr></thead><tbody>${show.map((o,i)=>{const e=o.e;const warn=(o.ma&&o.end&&TODAY<=o.end)||(e.m&&(e.m.dup||(!e.m.owner_ok&&o.ma)));
-    return `<tr data-i="${EV.indexOf(o)}"><td class="mono">${esc(e.s)}${e.t==='H'?' <span class="note">(pieza)</span>':''}</td><td class="cl" style="max-width:170px" title="${esc(e.c)} · ${esc(e.dv||'')}">${esc(e.c||'—')}</td><td>${o.end&&o.st!=='renting'?fd(o.end):'—'}<br><span class="note">venta ${fd(o.d)}</span></td><td><span class="pill ${ST[o.st].p}">${ST[o.st].l}</span>${warn?'<span class="warn" title="Revisar">!</span>':''}</td><td>${mtCell(o)}${e.m&&o.ma&&e.m.precio?'<br><span class="note">'+eur2(e.m.precio+(e.m.hpx||0))+'/mes</span>':''}</td><td>${fullCell(o)}</td><td>${e.m?invCell(lastInv(e.m.ci),true):''}</td></tr>`}).join('')}</tbody></table>${a.length>N?`<div class="more">Mostrando ${N} de ${nf.format(a.length)}. Busca o filtra para acotar.</div>`:''}${!a.length?'<div class="more">Ningún equipo con este filtro.</div>':''}`;
+    return `<tr data-i="${EV.indexOf(o)}"><td class="mono">${esc(e.s)}${e.t==='H'?' <span class="note">(pieza)</span>':''}</td><td class="cl" style="max-width:170px" title="${esc(e.c)} · ${esc(e.dv||'')}">${esc(e.c||'—')}</td><td>${o.end&&o.st!=='renting'?fd(o.end):'—'}<br><span class="note">salida ${fd(o.d)}</span></td><td><span class="pill ${ST[o.st].p}">${ST[o.st].l}</span>${warn?'<span class="warn" title="Revisar">!</span>':''}</td><td>${mtCell(o)}${e.m&&o.ma&&e.m.precio?'<br><span class="note">'+eur2(e.m.precio+(e.m.hpx||0))+'/mes</span>':''}</td><td>${fullCell(o)}</td><td>${e.m?invCell(lastInv(e.m.ci),true):''}</td></tr>`}).join('')}</tbody></table>${a.length>N?`<div class="more">Mostrando ${N} de ${nf.format(a.length)}. Busca o filtra para acotar.</div>`:''}${!a.length?'<div class="more">Ningún equipo con este filtro.</div>':''}`;
   $('#tbl').querySelectorAll('tbody tr').forEach(tr=>tr.onclick=()=>eqModal(EV[+tr.dataset.i]));
   wireSort($('#tbl'),'eq',renderList);
 }
@@ -507,7 +506,7 @@ function eqModal(o){
   const e=o.e;const m=e.m;const li=m?lastInv(m.ci):null;
   let h=`<div><span class="pill ${ST[o.st].p}">${ST[o.st].l}</span> <span class="note">${esc(o.why)}</span></div>`;
   h+=`<div class="sec"><h4>Cálculo de la garantía</h4><div class="steps">
-   <span class="k">Fecha de venta</span><span>${fd(o.d)} <span class="note">(${esc(e.dq==='agregado'?'fecha del Sales 2024 Agregado':e.dq==='texto'?'escrita como texto dd/mm/aaaa':e.dq)}${e.rd&&e.dq!=='ok'?' · valor en la celda: '+esc(e.rd):''}${e.d2?' · Date2 '+esc(e.d2):''})</span></span>
+   <span class="k">Salida del equipo</span><span>${fd(o.d)} <span class="note">(${esc(e.dq==='agregado'?'fecha del Sales 2024 Agregado':e.dq==='texto'?'columna Y, escrita como texto dd/mm/aaaa':e.dq==='ok'?'columna Y «Date»':e.dq)}${e.rd&&e.dq!=='ok'?' · valor en la celda: '+esc(e.rd):''}${e.d2?' · Date2 '+esc(e.d2):''})</span></span>
    <span class="k">Plazo</span><span>${o.months} meses <span class="note">(${o.rule?(o.rule.manual?'fijado a mano para este cliente':'regla «'+esc(o.rule.p)+'»'):'plazo por defecto, por confirmar'})</span></span>
    <span class="eq">Fin de garantía: ${fd(o.end)}${o.end?` · ${TODAY<=o.end?'quedan '+nf.format(days(TODAY,o.end))+' días':'vencida hace '+nf.format(days(o.end,TODAY))+' días'}`:''}</span></div>
    <div class="src">Origen: ${e.sr==='Agregado'?esc(D.src.agg)+' · hoja «Data» · fila '+e.r+' (columnas C/D serie, F cliente, L fecha)':srcV(e.r)+' (columnas B/E serie, L cliente, Y fecha, AA tipo de venta)'}.${e.dq==='ambigua'?' La celda es una fecha de Excel con día ≤ 12: puede tener día y mes invertidos; si fuera así, el fin sería '+fd(addM(new Date(o.d.getFullYear(),o.d.getDate()-1,o.d.getMonth()+1,12),o.months))+'.':''}</div></div>`;
@@ -599,7 +598,7 @@ $('#bAlert').onclick=()=>{const AL=window.__AL;
   openM('Lo que no cuadra',`<div class="alist">${AL.map((a,i)=>`<button class="aitem" type="button" data-a="${i}"><span class="c">${(a.items||a.rows||a.rows2).length}</span><span><span class="t">${esc(a.t)}</span><br><span class="d">${esc(a.d)}</span></span><span class="note">Ver ›</span></button>`).join('')}</div><div class="src">Criterio: se comparan la última posición de cada serie en ventas con las líneas de las últimas facturas de mantenimiento de Holded.</div>`);
   $('#mdB').querySelectorAll('.aitem').forEach(b=>b.onclick=()=>alertModal(AL[+b.dataset.a]))};
 function alertModal(a){let h=`<div class="note">${esc(a.d)}</div><div class="sec">`;
-  if(a.items){h+=`<div class="mt"><table><thead><tr><th>Serie</th><th>Dueño en ventas</th><th>Factura Holded</th><th>Fin garantía</th></tr></thead><tbody>${a.items.map(o=>`<tr data-i="${EV.indexOf(o)}"><td class="mono">${esc(o.e.s)}</td><td class="cl">${esc(o.e.c)}</td><td class="cl">${o.e.m?esc(o.e.m.num)+' · '+esc(D.cust[o.e.m.ci]):'—'}</td><td>${fd(o.end)}</td></tr>`).join('')}</tbody></table></div>`}
+  if(a.items){h+=`<div class="mt"><table><thead><tr><th>Serie</th><th>Dueño en ventas</th>${HOLCOL.has(a.k)?'<th>Factura Holded</th>':'<th>Salida del equipo</th>'}<th>Fin garantía</th></tr></thead><tbody>${a.items.map(o=>`<tr data-i="${EV.indexOf(o)}"><td class="mono">${esc(o.e.s)}</td><td class="cl">${esc(o.e.c)}</td>${HOLCOL.has(a.k)?`<td class="cl">${o.e.m?esc(o.e.m.num)+' · '+esc(D.cust[o.e.m.ci]):o.e.rt?esc(o.e.rt.n)+' · '+esc(o.e.rt.c):'—'}</td>`:`<td>${fd(o.d)}</td>`}<td>${fd(o.end)}</td></tr>`).join('')}</tbody></table></div>`}
   else if(a.rows2){h+=`<div class="mt"><table><thead><tr><th>Cliente Holded</th><th>Factura</th><th>Serie leída</th></tr></thead><tbody>${a.rows2.map(u=>`<tr><td class="cl">${esc(u.cliente)}</td><td class="mono">${esc(u.num)}</td><td class="mono">${esc(u.tok)}</td></tr>`).join('')}</tbody></table></div>`}
   else if(a.k==='un'){h+=`<div class="mt"><table><thead><tr><th>Cliente Holded</th><th>Factura</th><th>Lo que pone</th><th class="r">Cuota</th><th style="white-space:normal">Por qué no se casa</th></tr></thead><tbody>${a.rows.map(u=>`<tr style="cursor:default"><td class="cl">${esc(D.cust[u.ci])}</td><td class="mono">${esc(u.num)}</td><td>${esc(u.tok)} ${esc(u.modelo||'')}</td><td class="r">${u.precio!=null?eur2(u.precio):''}</td><td style="white-space:normal;min-width:220px;max-width:300px;overflow-wrap:anywhere">${u.past?'<b style="color:var(--bad)">':''}${esc(u.motivo||'')}${u.past?'</b>':''}</td></tr>`).join('')}</tbody></table></div>`}
   else {h+=`<div class="mt"><table><thead><tr><th>Cliente</th><th>Factura</th><th>Fecha</th><th class="r">Base</th><th>Estado</th></tr></thead><tbody>${a.rows.map(v=>`<tr><td class="cl">${esc(v.cliente)}</td><td class="mono">${esc(v.num)}</td><td>${fd(pd(v.fecha))}</td><td class="r">${eur2(v.base)}</td><td>${esc(v.estado)}</td></tr>`).join('')}</tbody></table></div>`}
