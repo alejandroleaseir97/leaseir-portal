@@ -390,6 +390,8 @@ function alerts(){
   const amb=EV.filter(o=>o.e.dq==='ambigua'&&o.end&&Math.abs(days(TODAY,o.end))<=180&&!o.e.ina);
   A.push({k:'amb',t:'Fecha de venta dudosa cerca del fin de garantía',d:'Día y mes pueden estar invertidos y cambia la fecha de fin',items:amb});
   A.push({k:'rsinf',t:'Rentings sin facturar en agosto y septiembre',d:'Ventas los da en renting, pero no aparecen en ninguna factura de renting de agosto ni septiembre',items:EV.filter(o=>o.st==='rsinf')});
+  const qi=new Set((D.qa||[]).map(q=>q.i));
+  A.push({k:'qa',t:'Casados a revisar',d:'Series de facturas que no cuadran del todo con el parque (pareja consola y pieza de mano que no coincide, factura sin nº de serie o renting que no basta para cambiar de cliente). Pincha cada equipo para ver el motivo',items:EV.filter(o=>qi.has(EQI.get(o.e)))});
   A.push({k:'rpos',t:'Renting facturado a otro cliente',d:'La factura de renting va a un cliente distinto del que figura en ventas: manda la factura',items:EV.filter(o=>o.e.rt&&!o.e.rt.ok)});
   A.push({k:'rdup',t:'Equipo facturado en renting a dos clientes',d:'El mismo nº de serie aparece en facturas de renting de clientes distintos',items:EV.filter(o=>o.e.rt&&o.e.rt.dup)});
   A.push({k:'run',t:'Rentings de Holded que no están en ventas',d:'Facturas de renting de agosto y septiembre cuya serie no está en los ficheros de ventas',rows2:D.rent_un||[]});
@@ -499,6 +501,8 @@ function closeM(){$('#ov').hidden=true}
 $('#mdX').onclick=closeM;$('#ov').onclick=e=>{if(e.target.id==='ov')closeM()};document.addEventListener('keydown',e=>{if(e.key==='Escape')closeM()});
 const srcV=r=>`${esc(D.src.ventas)} · hoja «${esc(D.src.hoja)}» · fila ${r}`;
 
+const EQI=new Map(D.eq.map((e,i)=>[e,i]));
+const fzBadge=f=>`<span class="pill ${f==='fuerte'?'p-mant':f==='media'?'p-sincob':'p-rsinf'}">${f==='fuerte'?'Segura':f==='media'?'Con pista':'Débil'}</span>`;
 function eqModal(o){
   const e=o.e;const m=e.m;const li=m?lastInv(m.ci):null;
   let h=`<div><span class="pill ${ST[o.st].p}">${ST[o.st].l}</span> <span class="note">${esc(o.why)}</span></div>`;
@@ -528,7 +532,8 @@ function eqModal(o){
      <span class="k">Tipo de contrato</span><span>${mtOf(e.c)?(()=>{const t=typeById(mtOf(e.c));return mtBadge(t.id)+' '+esc(t.name)+'<br><span class="note">'+esc(t.d||'')+(t.caliport?' · Caliport '+esc(t.caliport):'')+(t.portes?' · Portes: '+esc(t.portes):'')+(t.susti?' · Sustitución: '+esc(t.susti):'')+'</span>'})():'<span class="note">sin asignar (pestaña Tipos de mantenimiento)</span>'}</span>
      <span class="k">Contrato desde</span><span>${esc(m.contrato||'no figura en la factura')}</span>
      <span class="k">Última factura</span><span>${esc(li.num)} · ${fd(pd(li.fecha))} · ${eur2(li.base)} base del cliente · ${esc(li.estado)}</span>
-     <span class="k">Serie leída</span><span class="mono">${esc(m.tok)}</span></div>
+     <span class="k">Serie leída</span><span class="mono">${esc(m.tok)}</span>
+     ${m.fz?`<span class="k">Fiabilidad del casado</span><span>${fzBadge(m.fz)} ${esc(m.mot||'')}</span>`:''}</div>
      <div class="src">Origen: ${esc(D.src.holded)}; línea de la factura ${esc(m.num)} (PDF), cruzada por nº de serie${m.via==='cliente'?' <b>por nombre de cliente, porque la factura no trae serie</b>':''}. ${mActive(m)?'':'<b>Esta cuota ya no se emite</b> (última hace más de '+ACTIVE_DAYS+' días).'}${m.dup?' <b>Serie repetida en: '+m.dup.map(x=>esc(x.num)+' ('+esc(D.cust[x.ci])+', '+esc(x.tok)+')').join(', ')+'.</b>':''}${m.prev?' Antes se facturaba en '+esc(m.prev)+'.':''}</div></div>`;
   }
   if(e.cs||e.bd){const c=e.cs||{};const SH={sv:'SIn Vello',bel:'Belenus',derm:'Dermasana',br:'Brull',ant:'Mantenimientos antiguos'};
@@ -542,6 +547,9 @@ function eqModal(o){
      ${c.imp?`<span class="k">Impagado</span><span><b style="color:var(--bad)">${esc(c.imp==='x'?'Sí':c.imp)}</b></span>`:''}
      ${e.bd?`<span class="k">Antes en BEDDA</span><span>${esc(e.bd)}</span>`:''}</div>
      <div class="src">Origen: Google Sheets «Equipos con contrato de mantenimiento»${c.s?', pestaña «'+esc(SH[c.s])+'»':''}${e.bd?', pestaña «BEDDA (EX)»':''}.</div></div>`}
+  const QA=(D.qa||[]).filter(q=>q.i===EQI.get(e));
+  if(e.rt&&e.rt.fz)h+=`<div class="sec"><h4>Casado con la factura de renting</h4><div class="steps"><span class="k">Factura</span><span>${esc(e.rt.n)} · ${esc(e.rt.c)}</span><span class="k">Serie leída</span><span class="mono">${esc(e.rt.tok||'—')}</span><span class="k">Fiabilidad</span><span>${fzBadge(e.rt.fz)} ${esc(e.rt.mot||'')}</span>${e.rt.conf?'<span class="k">Decisión</span><span><b>No se cambia de cliente</b>: la evidencia no basta para quitárselo al dueño de ventas</span>':''}</div></div>`;
+  if(QA.length)h+=`<div class="sec"><h4>A revisar</h4><div class="act">${QA.map(q=>esc(q.t)).join('<br>')}</div></div>`;
   h+=`<div class="sec"><h4>Qué hacer</h4><div class="act">${esc(action(o))}</div></div>`;
   const bk=BACK;BACK=null;
   if(bk)h+='<div class="row2"><button class="btn" type="button" id="eqBack">‹ Volver</button></div>';
@@ -649,7 +657,7 @@ function setView(v){VIEW=v;$('#tP').classList.toggle('on',v==='parque');$('#tA')
 $('#tP').onclick=()=>setView('parque');$('#tA').onclick=()=>setView('acc');$('#tM').onclick=()=>setView('mt');$('#tC').onclick=()=>setView('ct');$('#ctNew').onclick=()=>upModal(null);$('#ctq').addEventListener('input',e=>{CTQ=e.target.value;renderCT()});
 // ---- tipos de mantenimiento
 let MTF='all';
-function mtCustomers(){const m={};EV.forEach(o=>{if(!o.ma||!o.e.m)return;const c=o.e.c||'(sin cliente)';const a=m[c]||(m[c]={c,n:0,cuota:0,li:null});a.n++;a.cuota+=(o.e.m.precio||0)+(o.e.m.hpx||0);const li=lastInv(o.e.m.ci);if(li&&(!a.li||li.fecha>a.li.fecha))a.li=li});return Object.values(m).sort((x,y)=>y.cuota-x.cuota)}
+function mtCustomers(){const m={};EV.forEach(o=>{if(!o.ma||!o.e.m)return;const c=o.e.m.pc||o.e.c||'(sin cliente)';const a=m[c]||(m[c]={c,n:0,cuota:0,li:null});a.n++;a.cuota+=(o.e.m.precio||0)+(o.e.m.hpx||0);const li=lastInv(o.e.m.ci);if(li&&(!a.li||li.fecha>a.li.fecha))a.li=li});return Object.values(m).sort((x,y)=>y.cuota-x.cuota)}
 function renderMT(){
   const all=mtCustomers();const T=types();
   const cnt={none:0};const eqc={};T.forEach(t=>{cnt[t.id]=0;eqc[t.id]=0});all.forEach(a=>{const k=mtOf(a.c);if(k){cnt[k]++;eqc[k]+=a.n}else cnt.none++});
