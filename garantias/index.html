@@ -749,8 +749,19 @@ async function ctInit(){
       return}
   }
   CTMODE='idb';
-  try{CTDOCS=(await CTIDB.all()).map(o=>Object.assign({key:o.id},o,{blob:undefined}))}catch(e){CTMODE='none'}
+  try{CTDOCS=(await CTIDB.all()).map(o=>Object.assign({key:o.id},o,{blob:undefined}))}catch(e){CTMODE='none';CTDOCS=[]}
+  try{const idx=JSON.parse(new TextDecoder().decode(await ctRepoDec('contratos/index.enc.json')));CTDOCS=CTDOCS.concat(idx.map(o=>Object.assign({},o,{key:'r:'+o.id,repo:true})))}catch(e){}
   if(VIEW==='ct')renderCT();
+}
+/* Contratos publicados en el repo (cifrados con la contraseña del panel) */
+async function ctRepoDec(path){
+  let pw=null;try{pw=sessionStorage.getItem('lt-garantias-pw')}catch(e){}
+  if(!pw)throw {code:'nopw'};
+  const env=await fetch(path+'?v='+Date.now(),{cache:'no-store'}).then(r=>{if(!r.ok)throw {code:'404'};return r.json()});
+  const b=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
+  const base=await crypto.subtle.importKey('raw',new TextEncoder().encode(pw),'PBKDF2',false,['deriveKey']);
+  const key=await crypto.subtle.deriveKey({name:'PBKDF2',salt:b(env.salt),iterations:env.iter,hash:'SHA-256'},base,{name:'AES-GCM',length:256},false,['decrypt']);
+  return new Uint8Array(await crypto.subtle.decrypt({name:'AES-GCM',iv:b(env.iv)},key,b(env.ct)));
 }
 const ctCanWrite=()=>CTMODE==='idb'||(CTMODE==='art'&&!!CTASSETS);
 const ctSize=b=>b>=1048576?(b/1048576).toFixed(1).replace('.',',')+' MB':Math.max(1,Math.round(b/1024))+' KB';
@@ -763,11 +774,12 @@ function ctRows(){
   const by=ctByCust();return Object.values(m).map(r=>Object.assign(r,{docs:by[r.c]||[]}))
 }
 async function ctBlob(d){
+  if(d.repo)return new Blob([await ctRepoDec('contratos/'+d.file)],{type:'application/pdf'});
   if(CTMODE==='art'){const r=await fetch('/_blob/'+d.asset);if(!r.ok)throw {code:'404'};return r.blob()}
   const o=await CTIDB.tx('readonly',s=>s.get(d.key));if(!o||!o.blob)throw {code:'404'};return o.blob
 }
 async function ctView(d){
-  if(CTMODE==='art'){const a=document.createElement('a');a.href='/_blob/'+d.asset;a.target='_blank';a.rel='noopener';document.body.appendChild(a);a.click();a.remove();return}
+  if(CTMODE==='art'&&!d.repo){const a=document.createElement('a');a.href='/_blob/'+d.asset;a.target='_blank';a.rel='noopener';document.body.appendChild(a);a.click();a.remove();return}
   try{const b=await ctBlob(d);const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.target='_blank';a.rel='noopener';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),60000)}catch(e){ctSay('No se encuentra el PDF en este navegador.')}
 }
 async function ctDown(d){
@@ -818,7 +830,7 @@ function upModal(cliente){
 }
 function ctHist(c){
   const ds=ctByCust()[c]||[];const w=ctCanWrite();
-  openM('Contratos · '+c,`<div class="mt" style="max-height:60vh"><table><thead><tr><th>Archivo</th><th>Firma</th><th>Subido</th><th class="r">Tamaño</th><th>Nota</th><th></th></tr></thead><tbody>${ds.map((d,i)=>`<tr style="cursor:default"><td class="cl" style="max-width:220px">${esc(d.name)}${i===0?' <span class="note">(vigente)</span>':''}</td><td>${d.firma?fd(pd(d.firma)):'—'}</td><td>${fd(new Date(d.at))}</td><td class="r">${ctSize(d.size||0)}</td><td class="cl" style="max-width:160px">${esc(d.nota||'')}</td><td style="white-space:nowrap"><button class="lnk" type="button" data-hv="${i}">Ver</button> · <button class="lnk" type="button" data-hd="${i}">Descargar</button>${w?` · <button class="lnk" type="button" data-hx="${i}" style="color:var(--bad)">Eliminar</button>`:''}</td></tr>`).join('')}</tbody></table></div>
+  openM('Contratos · '+c,`<div class="mt" style="max-height:60vh"><table><thead><tr><th>Archivo</th><th>Firma</th><th>Subido</th><th class="r">Tamaño</th><th>Nota</th><th></th></tr></thead><tbody>${ds.map((d,i)=>`<tr style="cursor:default"><td class="cl" style="max-width:220px">${esc(d.name)}${i===0?' <span class="note">(vigente)</span>':''}</td><td>${d.firma?fd(pd(d.firma)):'—'}</td><td>${fd(new Date(d.at))}</td><td class="r">${ctSize(d.size||0)}</td><td class="cl" style="max-width:160px">${esc(d.nota||'')}</td><td style="white-space:nowrap"><button class="lnk" type="button" data-hv="${i}">Ver</button> · <button class="lnk" type="button" data-hd="${i}">Descargar</button>${w&&!d.repo?` · <button class="lnk" type="button" data-hx="${i}" style="color:var(--bad)">Eliminar</button>`:''}</td></tr>`).join('')}</tbody></table></div>
    <div class="row2"><span class="note" style="margin-right:auto;align-self:center">${ds.length} documento${ds.length===1?'':'s'}. El más reciente es el vigente.</span>${w?'<button class="btn alt" type="button" id="hUp">Subir otro</button>':''}</div>`,true);
   const B=$('#mdB');
   B.querySelectorAll('[data-hv]').forEach(b=>b.onclick=()=>ctView(ds[+b.dataset.hv]));
@@ -835,10 +847,10 @@ function renderCT(){
   const nz=x=>String(x||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();const qn=nz(CTQ);
   let rows=all.filter(r=>(CTF==='all'||(CTF==='sin'?!r.docs.length:r.docs.length))&&(!qn||nz(r.c).includes(qn)));
   rows=sortArr(rows,SORT.ct,{cliente:r=>r.c,n:r=>r.n,cuota:r=>r.cuota,tipo:r=>mtOf(r.c)?mtName(mtOf(r.c)):null,firma:r=>r.docs[0]?r.docs[0].firma||null:null,subido:r=>r.docs[0]?r.docs[0].at:null});
-  const modeNote=CTMODE==='art'?(w?'Los PDF se guardan en el panel y los ven todos los que tienen acceso.':'Solo lectura: para subir o borrar contratos necesitas permiso de edición del panel.'):CTMODE==='idb'?'Versión del portal: los PDF se guardan solo en este navegador (no se comparten con otros ordenadores ni se suben a GitHub).':'Este navegador no permite guardar archivos.';
+  const modeNote=CTMODE==='art'?(w?'Los PDF se guardan en el panel y los ven todos los que tienen acceso.':'Solo lectura: para subir o borrar contratos necesitas permiso de edición del panel.'):CTMODE==='idb'?'Versión del portal: los contratos publicados los ve todo el que entra con la contraseña. Los que subas aquí se guardan solo en este navegador.':'Este navegador no permite guardar archivos.';
   $('#ctNote').textContent=modeNote;
   $('#ctNew').hidden=!w;
-  $('#ctT').innerHTML=`<table><thead><tr>${th('ct','cliente','Cliente')}${th('ct','n','Equipos en mant.','r')}${th('ct','cuota','Cuota/mes','r')}${th('ct','tipo','Contrato')}<th>PDF firmado</th>${th('ct','firma','Firma')}${th('ct','subido','Subido')}<th></th></tr></thead><tbody>${rows.map(r=>{const i=all.indexOf(r);const d=r.docs[0];const k=mtOf(r.c);return `<tr style="cursor:default"><td class="cl" style="max-width:220px"><button class="lnk" type="button" data-cc="${i}" style="color:var(--ink)">${esc(r.c)}</button></td><td class="r">${r.n||'—'}</td><td class="r">${r.cuota?eur2(r.cuota):'—'}</td><td>${k?mtBadge(k)+' <span class="note">'+esc(mtName(k))+'</span>':'<span class="num0">—</span>'}</td><td class="cl" style="max-width:220px">${d?`<button class="lnk" type="button" data-cv="${i}">${esc(d.name)}</button>${r.docs.length>1?` <button class="lnk" type="button" data-ch="${i}" style="font-weight:600">+${r.docs.length-1}</button>`:''}`:(r.mt?'<b style="color:var(--bad)">Falta</b>':'<span class="num0">—</span>')}</td><td>${d&&d.firma?fd(pd(d.firma)):'—'}</td><td>${d?fd(new Date(d.at)):'—'}</td><td style="white-space:nowrap;text-align:right">${d?`<button class="lnk" type="button" data-cd="${i}">Descargar</button>`:''}${w?`${d?' · ':''}<button class="lnk" type="button" data-cu="${i}">${d?'Sustituir':'Subir PDF'}</button>`:''}${d&&w?` · <button class="lnk" type="button" data-cx="${i}" style="color:var(--bad)">Eliminar</button>`:''}</td></tr>`}).join('')}</tbody></table>${!rows.length?'<div class="more">Ningún cliente con este filtro.</div>':''}`;
+  $('#ctT').innerHTML=`<table><thead><tr>${th('ct','cliente','Cliente')}${th('ct','n','Equipos en mant.','r')}${th('ct','cuota','Cuota/mes','r')}${th('ct','tipo','Contrato')}<th>PDF firmado</th>${th('ct','firma','Firma')}${th('ct','subido','Subido')}<th></th></tr></thead><tbody>${rows.map(r=>{const i=all.indexOf(r);const d=r.docs[0];const k=mtOf(r.c);return `<tr style="cursor:default"><td class="cl" style="max-width:220px"><button class="lnk" type="button" data-cc="${i}" style="color:var(--ink)">${esc(r.c)}</button></td><td class="r">${r.n||'—'}</td><td class="r">${r.cuota?eur2(r.cuota):'—'}</td><td>${k?mtBadge(k)+' <span class="note">'+esc(mtName(k))+'</span>':'<span class="num0">—</span>'}</td><td class="cl" style="max-width:220px">${d?`<button class="lnk" type="button" data-cv="${i}">${esc(d.name)}</button>${r.docs.length>1?` <button class="lnk" type="button" data-ch="${i}" style="font-weight:600">+${r.docs.length-1}</button>`:''}`:(r.mt?'<b style="color:var(--bad)">Falta</b>':'<span class="num0">—</span>')}</td><td>${d&&d.firma?fd(pd(d.firma)):'—'}</td><td>${d?fd(new Date(d.at)):'—'}</td><td style="white-space:nowrap;text-align:right">${d?`<button class="lnk" type="button" data-cd="${i}">Descargar</button>`:''}${w?`${d?' · ':''}<button class="lnk" type="button" data-cu="${i}">${d?'Sustituir':'Subir PDF'}</button>`:''}${d&&w&&!d.repo?` · <button class="lnk" type="button" data-cx="${i}" style="color:var(--bad)">Eliminar</button>`:''}</td></tr>`}).join('')}</tbody></table>${!rows.length?'<div class="more">Ningún cliente con este filtro.</div>':''}`;
   const T=$('#ctT');
   T.querySelectorAll('[data-cc]').forEach(b=>b.onclick=()=>custModal(all[+b.dataset.cc].c));
   T.querySelectorAll('[data-cv]').forEach(b=>b.onclick=()=>ctView(all[+b.dataset.cv].docs[0]));

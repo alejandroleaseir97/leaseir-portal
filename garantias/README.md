@@ -16,3 +16,8 @@ y plazo manual cliente a cliente. En esta versión de GitHub se guardan en el na
 
 ## Refrescar datos
 Regenerar el JSON y cifrarlo con `python ../conciliacion/cifrar.py data.json data.enc.json CONTRASEÑA`.
+
+## Contratos firmados
+- `contratos/index.enc.json` — índice cifrado (cliente, fichero, fecha de firma, nota).
+- `contratos/<id>.enc.json` — cada PDF cifrado con la misma contraseña que los datos.
+La pestaña Contratos los lee al entrar con la contraseña; los subidos desde el navegador siguen guardándose solo en ese navegador.
