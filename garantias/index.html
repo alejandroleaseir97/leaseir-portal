@@ -46,7 +46,7 @@ h1{font-family:var(--fd);font-size:21px;font-weight:600;letter-spacing:.005em;ma
 .btn:focus-visible,.click:focus-visible,.chip:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
 .btn .n{background:var(--bad);color:#fff;border-radius:999px;padding:1px 8px;font-size:11.5px}
 .btn.alt{background:var(--acc);color:#fff}
-.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
 .card{background:var(--card);border-radius:var(--r);box-shadow:var(--sh);padding:14px 16px;min-width:0}
 .kpi{display:grid;grid-template-columns:1fr auto;align-items:end;gap:4px 10px;cursor:pointer;border:0;text-align:left;font:inherit;color:inherit;position:relative;overflow:hidden}
 .kpi:hover{box-shadow:0 2px 4px rgba(24,33,44,.06),0 10px 24px rgba(24,33,44,.10)}
@@ -331,7 +331,7 @@ let DV=D.deuda||null;
 const debtOf=c=>{if(!DV||!c)return null;const ks=DV.cli[c]||[];const acc=ks.map(k=>DV.acc[k]).filter(Boolean);return {v:acc.reduce((s,a)=>s+a.v,0),acc,how:DV.how[c]||''}};
 const DVAT=()=>DV?new Date(DV.at).toLocaleString('es-ES',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',timeZone:'Europe/Madrid'}):'';
 function debtPill(c){const d=debtOf(c);return d&&d.v>=1?`<span class="pill p-debt" title="Deuda vencida del cliente a ${esc(DVAT())}">Debe ${eur(d.v)}</span>`:''}
-function debtSec(o){const d=debtOf(o.e.c);if(!d)return '';
+function debtSec(o){const d=debtOf(o.e.c);if(!d)return '';const acu=(DV.acu||{})[o.e.c];if(acu)return `<div class="dbt ok">✓ <b>Acuerdo de pago</b> · ${esc(acu)}</div>`;
   if(d.v<1)return `<div class="dbt ok">✓ <b>Al corriente</b> · sin deuda vencida <span class="note">a ${esc(DVAT())}</span></div>`;
   const f=d.acc.flatMap(a=>a.f.map(x=>({a,n:x[0],ve:pd(x[1]),v:x[2],fin:x[3]}))).sort((x,y)=>x.ve-y.ve);
   const old=f.find(x=>x.ve<=TODAY)||f[0];const ndays=old?days(old.ve,TODAY):0;
@@ -464,10 +464,6 @@ function render(){
     {id:'lost',lb:'Salieron de garantía sin contrato',c:'var(--sin)',v:lost.length,sub:`últimos 12 meses · ${trendTxt(lostT,L3)}`,t:lostT},
     {id:'soon',lb:'Salen de garantía en 90 días',c:'var(--acc)',v:soon.length,sub:`sin contrato aún · ${trendTxt(soonT,L3)}`,t:soonT},
   ];
-  if(DV){const dc=Object.keys(DV.cli).filter(c=>debtOf(c).v>=1&&act.some(o=>o.e.c===c));const tot=new Set(dc.flatMap(c=>DV.cli[c]));const v=[...tot].reduce((s,k)=>s+DV.acc[k].v,0);
-    const H=Object.entries(DV.hist||{}).sort();const dT=L3.map(t=>{const iso=t.toLocaleDateString('sv-SE');const p=H.filter(([d])=>d<=iso).pop();return p?p[1].tot:null});
-    const ok=dT.filter(x=>x!=null).length;
-    K.push({id:'deu',lb:'Deuda vencida del parque',c:'var(--bad)',v,money:true,sub:`${dc.length} clientes · ${ok>=2&&dT[0]!=null?trendTxt(dT,L3,true):'serie diaria desde '+fd(pd(H[0][0]))}`,t:ok>=2?dT.map(x=>x??dT.find(y=>y!=null)):null,dc})}
   $('#kpis').innerHTML=K.map(k=>`<button class="card kpi" type="button" data-k="${k.id}"><span class="lb"><i class="dot" style="background:${k.c}"></i>${k.lb}</span><span class="v">${k.money?eur(k.v):nf.format(k.v)}</span>${k.t?spark(k.t,k.c):''}<span class="sub">${k.sub}</span></button>`).join('');
   $('#kpis').querySelectorAll('.kpi').forEach(b=>b.onclick=()=>b.dataset.k==='deu'?debtModal():kpiModal(b.dataset.k,{gar,man,lost,soon,garT,manT,lostT,soonT,L3,mrr}));
   window.__K={gar,man,lost,soon};
@@ -1022,7 +1018,8 @@ function custModal(c,keepF,hl){
   let rows=CF==='all'?L:L.filter(o=>o.st===CF);
   rows=SORT.cm?sortArr(rows,SORT.cm,GEQ):rows.slice().sort((x,y)=>(STORD[x.st]-STORD[y.st])||((x.end?x.end.getTime():9e15)-(y.end?y.end.getTime():9e15)));
   const dd=debtOf(c);
-  let h=(dd?(dd.v>=1?`<div class="dbt bad" style="margin:0 0 10px"><b>Debe ${eur(dd.v)} vencidos</b> <span class="note">· ${dd.acc.map(x=>esc(x.n)).join(' · ')} · a ${esc(DVAT())} · factura a factura en la ficha de cada equipo</span></div>`:`<div class="dbt ok" style="margin:0 0 10px">✓ <b>Al corriente</b> · sin deuda vencida <span class="note">a ${esc(DVAT())}</span></div>`):'')+`<div class="steps" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px 16px">
+  const acu=DV&&(DV.acu||{})[c];
+  let h=acu?`<div class="dbt ok" style="margin:0 0 10px">✓ <b>Acuerdo de pago</b> · ${esc(acu)}</div>`:(dd?(dd.v>=1?`<div class="dbt bad" style="margin:0 0 10px"><b>Debe ${eur(dd.v)} vencidos</b> <span class="note">· ${dd.acc.map(x=>esc(x.n)).join(' · ')} · a ${esc(DVAT())} · factura a factura en la ficha de cada equipo</span></div>`:`<div class="dbt ok" style="margin:0 0 10px">✓ <b>Al corriente</b> · sin deuda vencida <span class="note">a ${esc(DVAT())}</span></div>`):'')+`<div class="steps" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px 16px">
     <span><span class="note">Equipos</span><br><b style="font-size:20px">${nf.format(L.length)}</b></span>
     <span><span class="note">Plazo de garantía</span><br><b style="font-size:20px">${mo} meses</b> <span class="note">${r?(r.manual?'manual':'regla «'+esc(r.p)+'»'):'por defecto, por confirmar'}</span></span>
     <span><span class="note">Salen de garantía en 90 días</span><br><b style="font-size:20px">${soon}</b></span>
